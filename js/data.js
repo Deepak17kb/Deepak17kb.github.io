@@ -33,6 +33,7 @@ window.DKB_DATA = {
     { key: 'krishimitra', name: 'KrishiMitra', what: 'AI farming assistant', stack: 'Node · Express · Gemini API', demo: 'https://krishi-mitra-silk-nine.vercel.app' },
     { key: 'jobs', name: 'Global Jobs Analytics', what: 'Power BI dashboard over 100K+ job records', stack: 'Power BI · DAX · Power Query', code: 'https://github.com/Deepak17kb/Global-Jobs-Hiring-Analytics' },
     { key: 'deadlock', name: 'Deadlock Detector', what: 'OS wait-for graph analysis', demo: 'https://automated-deadlock-detection-tool.vercel.app' },
+    { key: 'echo', name: 'Echo Voice Studio', what: 'Voice notes that file themselves, dictation with grammar polish, reminders from plain speech; the Python backend runs in the browser via Pyodide', stack: 'Python · Pyodide/WebAssembly · SQLite · JavaScript · Web Speech API', demo: 'https://deepak17kb.github.io/Echo-Voice-Studio/', code: 'https://github.com/Deepak17kb/Echo-Voice-Studio' },
   ],
 
   achievements: [
