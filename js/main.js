@@ -275,7 +275,7 @@
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
     tl.from(heroChars, { yPercent: 115, rotate: 6, duration: 1.4, stagger: 0.04 })
       .from('.hero__meta > *', { y: 20, opacity: 0, duration: 1, stagger: 0.08 }, 0.3)
-      .from('.hero__cutout', { yPercent: 14, autoAlpha: 0, duration: 2, clearProps: 'opacity,visibility' }, 0.4)
+      .from('.hero__cutout', { yPercent: 14, scale: 1.04, duration: 2.2 }, 0.3)
       .from('.hero .fade-up', { y: 40, opacity: 0, duration: 1.2, stagger: 0.12 }, 0.7)
       .from('.badge', { scale: 0, rotate: -180, duration: 1.4 }, 0.8)
       .from('.nav > *', { y: -30, opacity: 0, duration: 1, stagger: 0.08 }, 0.5);
@@ -443,8 +443,9 @@
   });
 
   /* ---------- Recalculate once fonts and images settle ---------- */
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
-  window.addEventListener('load', () => ScrollTrigger.refresh());
+  // one debounced recalculation, not one per event (each is a full-page layout)
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => refreshSoon.restart(true));
+  window.addEventListener('load', () => refreshSoon.restart(true));
 
   if (reduced) return;
 
@@ -480,7 +481,7 @@
 
   /* ---------- Manifesto: words light up as you scroll ---------- */
   if (manifesto) {
-    gsap.fromTo($$('.word', manifesto), { opacity: 0.12 }, {
+    gsap.fromTo($$('.word', manifesto), { opacity: 0.6 }, { // 0.6 keeps unread words at 4.5:1 contrast in both themes
       opacity: 1, stagger: 0.1, ease: 'none',
       scrollTrigger: { trigger: manifesto, start: 'top 80%', end: 'bottom 45%', scrub: true },
     });

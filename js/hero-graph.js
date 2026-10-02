@@ -175,8 +175,6 @@
   };
   const pathD = (path) => path.map((n, k) => `${k ? 'L' : 'M'}${pts[n].x.toFixed(1)},${pts[n].y.toFixed(1)}`).join(' ');
 
-  generate();
-
   /* ---------- Static frame (no GSAP / reduced motion) ---------- */
   const drawStatic = () => {
     if (!leftSide.length || !rightSide.length) return;
@@ -187,6 +185,7 @@
     [route, ...ends, ...labels].forEach((n) => n.setAttribute('opacity', 1));
   };
   if (!gs || reduced) {
+    generate();
     drawStatic();
     let w = innerWidth;
     window.addEventListener('resize', () => { if (innerWidth !== w) { w = innerWidth; generate(); drawStatic(); } });
@@ -256,6 +255,7 @@
   const build = () => {
     if (started) return;
     started = true;
+    generate();   // built lazily: it measures the layout, so keep it out of page load
     // the network assembles outward from the portrait, then the first route runs
     const byDist = (n) => Math.hypot(+n.getAttribute('cx') - HX, +n.getAttribute('cy') - HY);
     const nodes = nodeEls.filter(Boolean).sort((a, b) => byDist(a) - byDist(b));
@@ -275,9 +275,10 @@
     resizeTimer = setTimeout(() => {
       if (innerWidth === lastW) return;   // mobile toolbars change height only
       lastW = innerWidth;
+      if (!started) return;
       stopLoop();
       generate();
-      if (started && onScreen) cycle();
+      if (onScreen) cycle();
     }, 250);
   });
 

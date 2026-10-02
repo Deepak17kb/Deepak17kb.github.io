@@ -381,7 +381,10 @@
     ctx.fill();
   }
 
+  // Nothing is searched or drawn until the lab is near the viewport
+  let near = false, pending = false;
   function request() {
+    if (!near) { pending = true; return; }
     if (!raf) raf = requestAnimationFrame(frame);
   }
   function frame(now) {
@@ -504,9 +507,15 @@
   // Theme switch: repaint right away so the view-transition snapshot has the new colours
   new MutationObserver(() => {
     readColors();
+    if (!near) return void (pending = true);
     if (dirty) recompute();
     draw(performance.now());
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  new IntersectionObserver((entries) => {
+    near = entries.some((e) => e.isIntersecting);
+    if (near && pending) { pending = false; request(); }
+  }, { rootMargin: '600px 0px' }).observe(stage);
 
   // First time the lab is properly on screen, play a demo run
   const io = new IntersectionObserver((entries) => {

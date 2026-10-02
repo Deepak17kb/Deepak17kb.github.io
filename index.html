@@ -14,13 +14,10 @@
   <link rel="canonical" href="https://deepak17kb.github.io/" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121110'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' dominant-baseline='middle' font-family='Georgia,serif' font-style='italic' font-size='38' fill='%23FF4A1C'%3Ed%3C/text%3E%3C/svg%3E" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- Fonts load without blocking first paint (the preloader covers the swap) -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" /></noscript>
-  <link rel="preload" as="image" href="assets/deepak-portrait.webp" fetchpriority="high" />
+  <!-- fonts and libraries are self-hosted: no third-party connections before first paint -->
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/anton-normal-latin-1.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-tight-normal-latin-7.woff2" crossorigin />
+  <link rel="preload" as="image" type="image/avif" imagesrcset="assets/deepak-portrait-540.avif 540w, assets/deepak-portrait-800.avif 800w, assets/deepak-portrait-1087.avif 1087w" imagesizes="(max-width: 860px) 90vw, 50vw" fetchpriority="high" />
   <link rel="stylesheet" href="css/style.css" />
 
   <script>
@@ -35,6 +32,7 @@
   </script>
 </head>
 <body>
+  <a class="skip-link" href="#about">Skip to content</a>
 
   <!-- ============ PRELOADER ============ -->
   <div class="preloader" aria-hidden="true">
@@ -66,8 +64,9 @@
       <a href="#contact" data-link>Contact</a>
     </nav>
     <div class="nav__right">
-      <button class="nav__cmd mono" type="button" data-palette-open aria-label="Open command menu" title="Command menu"><kbd data-kbd-mod>Ctrl</kbd><kbd>K</kbd></button>
+      <button class="nav__cmd mono" type="button" data-palette-open title="Command menu"><kbd data-kbd-mod>Ctrl</kbd><kbd>K</kbd><span class="sr-only"> command menu</span></button>
       <span class="nav__clock mono" title="My local time">IST <span data-clock>--:--</span></span>
+      <button class="nav__find" type="button" data-palette-open aria-label="Search and commands"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
       <button class="theme-toggle" aria-label="Toggle dark mode" data-magnetic>
         <span class="theme-toggle__sun"></span>
       </button>
@@ -100,7 +99,10 @@
       </div>
       <!-- the photo sits in front of the name so letters never cover it -->
       <div class="hero__face" aria-hidden="true">
-        <img class="hero__cutout" src="assets/deepak-portrait.webp" alt="" width="1087" height="1199" decoding="async" fetchpriority="high" />
+        <picture>
+          <source type="image/avif" srcset="assets/deepak-portrait-540.avif 540w, assets/deepak-portrait-800.avif 800w, assets/deepak-portrait-1087.avif 1087w" sizes="(max-width: 860px) 90vw, 50vw" />
+          <img class="hero__cutout" src="assets/deepak-portrait.webp" srcset="assets/deepak-portrait-540.webp 540w, assets/deepak-portrait-800.webp 800w, assets/deepak-portrait.webp 1087w" sizes="(max-width: 860px) 90vw, 50vw" alt="" width="1087" height="1199" decoding="async" fetchpriority="high" />
+        </picture>
       </div>
 
       <div class="hero__meta mono">
@@ -140,7 +142,7 @@
           <a href="#work" class="btn btn--fill" data-link data-magnetic><span>See my work</span><i>↘</i></a>
           <a href="assets/Deepak-Kumar-Behera-CV.pdf" class="btn" download data-magnetic><span>Download CV</span><i>↓</i></a>
         </div>
-        <a href="#about" class="badge" data-link aria-label="Scroll down">
+        <a href="#about" class="badge" data-link aria-label="Scroll to explore">
           <svg viewBox="0 0 200 200" class="badge__text" aria-hidden="true">
             <defs><path id="circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" /></defs>
             <text><textPath href="#circle">SCROLL TO EXPLORE • OPEN TO WORK • SCROLL TO EXPLORE • OPEN TO WORK •</textPath></text>
@@ -169,7 +171,10 @@
           <figure class="portrait">
             <div class="portrait__stage">
               <span class="portrait__arch"></span>
-              <img class="portrait__cut" src="assets/deepak-portrait.webp" alt="Deepak Kumar Behera in a navy suit and LPU tie" width="1087" height="1199" loading="lazy" decoding="async" />
+              <picture>
+                <source type="image/avif" srcset="assets/deepak-portrait-540.avif 540w, assets/deepak-portrait-800.avif 800w, assets/deepak-portrait-1087.avif 1087w" sizes="(max-width: 860px) 360px, 400px" />
+                <img class="portrait__cut" src="assets/deepak-portrait.webp" srcset="assets/deepak-portrait-540.webp 540w, assets/deepak-portrait-800.webp 800w, assets/deepak-portrait.webp 1087w" sizes="(max-width: 860px) 360px, 400px" alt="Deepak Kumar Behera in a navy suit and LPU tie" width="1087" height="1199" loading="lazy" decoding="async" />
+              </picture>
             </div>
             <span class="portrait__sticker">Hi, I'm Deepak <span class="hand" aria-hidden="true">👋</span></span>
             <figcaption class="portrait__caption mono">
@@ -482,10 +487,10 @@
       </div>
 
       <div class="skills">
-        <div class="skills__col"><h4 class="mono">Languages</h4><p>Python<br>SQL<br>C++<br>Java<br>JavaScript · TypeScript</p></div>
-        <div class="skills__col"><h4 class="mono">Web</h4><p>Node.js<br>Express.js<br>React<br>REST APIs<br>HTML5 / CSS3</p></div>
-        <div class="skills__col"><h4 class="mono">Data</h4><p>Power BI · DAX<br>Tableau<br>Power Query<br>MS SQL Server<br>MongoDB · Excel</p></div>
-        <div class="skills__col"><h4 class="mono">Tools &amp; Craft</h4><p>Git / GitHub<br>VS Code<br>Jupyter<br>Data Storytelling<br>Data Validation</p></div>
+        <div class="skills__col"><h3 class="mono">Languages</h3><p>Python<br>SQL<br>C++<br>Java<br>JavaScript · TypeScript</p></div>
+        <div class="skills__col"><h3 class="mono">Web</h3><p>Node.js<br>Express.js<br>React<br>REST APIs<br>HTML5 / CSS3</p></div>
+        <div class="skills__col"><h3 class="mono">Data</h3><p>Power BI · DAX<br>Tableau<br>Power Query<br>MS SQL Server<br>MongoDB · Excel</p></div>
+        <div class="skills__col"><h3 class="mono">Tools &amp; Craft</h3><p>Git / GitHub<br>VS Code<br>Jupyter<br>Data Storytelling<br>Data Validation</p></div>
       </div>
     </section>
 
@@ -551,7 +556,7 @@
       </div>
 
       <div class="certs">
-        <h4 class="mono">Certifications</h4>
+        <h3 class="mono">Certifications</h3>
         <ul>
           <li><span class="certs__row"><span class="certs__name">Oracle Agentic AI Certified Foundations Associate</span><span class="certs__by mono">Oracle · Sep 2026</span></span></li>
           <li><a href="https://drive.google.com/file/d/1H2KW4a7GMuvLveb_4dYi2V5vE_UxL_Vm/view" target="_blank" rel="noopener"><span class="certs__name">OCI AI Certified Foundations Associate <i>↗</i></span><span class="certs__by mono">Oracle · Jul 2026</span></a></li>
@@ -744,9 +749,9 @@
 
   <div class="toast mono" role="status" aria-live="polite"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="vendor/ScrollTrigger.min.js" defer></script>
+  <script src="vendor/lenis.min.js" defer></script>
   <script src="js/data.js" defer></script>
   <script src="js/main.js" defer></script>
   <script src="js/hero-graph.js" defer></script>
