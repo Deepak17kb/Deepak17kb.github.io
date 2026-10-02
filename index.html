@@ -90,13 +90,13 @@
 
     <!-- ============ HERO ============ -->
     <section class="hero">
-      <!-- animated backdrop behind the photo: soft glow, dot grid, orbiting graph rings (kept clear of the face) -->
+      <!-- behind the photo: a small road network that keeps routing from a problem to a solution, around the portrait -->
       <div class="hero__aura" aria-hidden="true">
-        <span class="aura__grid"></span>
-        <span class="aura__glow"></span>
-        <span class="aura__ring aura__ring--1"><i class="n n--top n--accent"></i><i class="n n--bl"></i><i class="n n--right"></i></span>
-        <span class="aura__ring aura__ring--2"><i class="n n--right"></i><i class="n n--tl n--accent"></i><i class="n n--bottom"></i></span>
-        <span class="aura__ring aura__ring--3"><i class="n n--bottom n--accent"></i><i class="n n--left"></i></span>
+        <svg class="route-graph" viewBox="-435 -240 1957 1559" focusable="false"></svg>
+      </div>
+      <!-- the live route, its runner and the PROBLEM/SOLUTION pins: above the name, still below the photo -->
+      <div class="hero__marks" aria-hidden="true">
+        <svg class="route-marks" viewBox="-435 -240 1957 1559" focusable="false"></svg>
       </div>
       <!-- the photo sits in front of the name so letters never cover it -->
       <div class="hero__face" aria-hidden="true">
@@ -169,7 +169,7 @@
           <figure class="portrait">
             <div class="portrait__stage">
               <span class="portrait__arch"></span>
-              <img class="portrait__cut" src="assets/deepak-portrait.webp" alt="Deepak Kumar Behera in a navy suit and LPU tie" width="1087" height="1199" decoding="async" />
+              <img class="portrait__cut" src="assets/deepak-portrait.webp" alt="Deepak Kumar Behera in a navy suit and LPU tie" width="1087" height="1199" loading="lazy" decoding="async" />
             </div>
             <span class="portrait__sticker">Hi, I'm Deepak <span class="hand" aria-hidden="true">👋</span></span>
             <figcaption class="portrait__caption mono">
@@ -178,12 +178,39 @@
             </figcaption>
           </figure>
         </div>
-        <div class="about__stats">
-          <div class="stat"><span class="stat__num" data-count="150" data-suffix="+">150+</span><span class="stat__label">DSA solutions in C++</span></div>
-          <div class="stat"><span class="stat__num" data-count="100" data-suffix="K+">100K+</span><span class="stat__label">Job records modelled</span></div>
-          <div class="stat"><span class="stat__num" data-count="10" data-suffix="+">10+</span><span class="stat__label">Graph algorithms from scratch</span></div>
-          <div class="stat"><span class="stat__num" data-count="8.04" data-decimals="2">8.04</span><span class="stat__label">CGPA at LPU</span></div>
+
+        <div class="about__side">
+          <div class="about__story">
+            <p>I study Computer Science at Lovely Professional University, specializing in <em>Data Science with AI</em>. I started with programming and algorithms, then moved toward analytics, machine learning, geospatial systems and shipping real products.</p>
+            <p>I like taking things apart to see how they work, breaking them, fixing them, and turning them into something someone can use.</p>
+          </div>
+
+          <!-- how a problem moves through my work; the arrows draw once on first view -->
+          <ol class="pipeline mono" aria-label="Raw data, then insight, then intelligence, then product">
+            <li><span>Raw Data</span></li>
+            <li><span>Insight</span></li>
+            <li><span>Intelligence</span></li>
+            <li><span>Product</span></li>
+          </ol>
+
+          <div class="exe">
+            <div class="exe__bar mono"><span class="exe__dots" aria-hidden="true"><i></i><i></i><i></i></span><span>DEEPAK.EXE</span></div>
+            <dl class="exe__rows mono">
+              <div><dt>ROLE</dt><dd>CSE Student / Builder</dd></div>
+              <div><dt>CURRENT MODE</dt><dd>Building</dd></div>
+              <div><dt>FUEL</dt><dd>Curiosity + Caffeine</dd></div>
+              <div><dt>ENVIRONMENT</dt><dd>VS Code</dd></div>
+              <div><dt>STATUS</dt><dd>Still figuring things out.</dd></div>
+            </dl>
+          </div>
         </div>
+      </div>
+
+      <div class="about__stats">
+        <div class="stat"><span class="stat__num" data-count="150" data-suffix="+">150+</span><span class="stat__label">DSA solutions in C++ <span class="stat__src mono">· LPU DSA bootcamp</span></span></div>
+        <div class="stat"><span class="stat__num" data-count="100" data-suffix="K+">100K+</span><span class="stat__label">Job records modelled</span></div>
+        <div class="stat"><span class="stat__num" data-count="10" data-suffix="+">10+</span><span class="stat__label">Graph algorithms from scratch</span></div>
+        <div class="stat"><span class="stat__num" data-count="8.04" data-decimals="2">8.04</span><span class="stat__label">CGPA at LPU</span></div>
       </div>
     </section>
 
@@ -722,6 +749,7 @@
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
   <script src="js/data.js" defer></script>
   <script src="js/main.js" defer></script>
+  <script src="js/hero-graph.js" defer></script>
   <script src="js/lab.js" defer></script>
   <script src="js/terminal.js" defer></script>
   <script src="js/palette.js" defer></script>

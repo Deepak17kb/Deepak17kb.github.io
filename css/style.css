@@ -288,54 +288,26 @@ html:not(.js) .preloader { display: none; }
 @keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(43,182,115,0); } 100% { box-shadow: 0 0 0 0 rgba(43,182,115,0); } }
 
 /* two boxes with the photo's geometry: the aura (behind the name) and the face (in front of it) */
-.hero__face, .hero__aura {
+.hero__face, .hero__aura, .hero__marks {
   position: absolute; right: 2vw; bottom: 0; z-index: 2;
   height: min(calc(100% - 124px), 58vw); aspect-ratio: 1087 / 1199;
   pointer-events: none;
 }
 .hero__aura { z-index: 0; }
+.hero__marks { z-index: 2; } /* above the name (z 1); the face comes later in the DOM at z 2, so it still wins */
 
-/* Aura: everything is round and centred on the head (52% / 22.5% of the photo),
-   and the inner ring clears the hair, so no edge ever crosses the face */
-.aura__glow {
-  position: absolute; left: 52%; top: 30%; width: 120%; aspect-ratio: 1; translate: -50% -50%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side,
-    color-mix(in srgb, var(--accent) 34%, transparent),
-    color-mix(in srgb, var(--accent) 12%, transparent) 55%,
-    transparent);
-  animation: breathe 8s ease-in-out infinite;
-}
-.aura__grid {
-  position: absolute; inset: -8% -30% 0 -30%;
-  background-image: radial-gradient(circle, color-mix(in srgb, var(--ink) 45%, transparent) 1px, transparent 1.6px);
-  background-size: 22px 22px;
-  -webkit-mask-image: radial-gradient(closest-side at 50% 30%, #000 15%, transparent 100%);
-  mask-image: radial-gradient(closest-side at 50% 30%, #000 15%, transparent 100%);
-  opacity: .45;
-}
-.aura__ring {
-  position: absolute; left: 52%; top: 22.5%; aspect-ratio: 1; translate: -50% -50%;
-  border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
-  animation: orbit 90s linear infinite;
-}
-.aura__ring--1 { width: 124%; }
-.aura__ring--2 { width: 92%; border-style: dashed; border-color: color-mix(in srgb, var(--ink) 22%, transparent); animation-duration: 60s; animation-direction: reverse; }
-.aura__ring--3 { width: 64%; border-color: color-mix(in srgb, var(--accent) 35%, transparent); animation-duration: 38s; }
-/* graph nodes riding the rings */
-.aura__ring .n { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--ink); opacity: .5; }
-.aura__ring .n--accent {
-  width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; background: var(--accent); opacity: 1;
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 18%, transparent);
-}
-.n--top { left: 50%; top: 0; }
-.n--bottom { left: 50%; top: 100%; }
-.n--left { left: 0; top: 50%; }
-.n--right { left: 100%; top: 50%; }
-.n--tl { left: 14.64%; top: 14.64%; }
-.n--bl { left: 14.64%; top: 85.36%; }
-@keyframes orbit { to { rotate: 360deg; } }
-@keyframes breathe { 50% { scale: 1.08; } }
+/* Route graph: lives in the portrait's coordinate space, extended past the photo on every side.
+   Nodes/edges are generated outside a keep-out zone around the person, so nothing sits behind the face. */
+.route-graph, .route-marks { position: absolute; left: -40%; top: -20%; width: 180%; max-width: none; height: 130%; overflow: visible; }
+.rg-edge { stroke: color-mix(in srgb, var(--ink) 15%, transparent); stroke-width: 2; }
+.rg-node { fill: var(--paper); stroke: color-mix(in srgb, var(--ink) 38%, transparent); stroke-width: 2; transition: fill .35s, stroke .35s; }
+.rg-node.is-hub { stroke: color-mix(in srgb, var(--ink) 60%, transparent); }
+.rg-node.is-seen { fill: color-mix(in srgb, var(--accent) 45%, var(--paper)); stroke: var(--accent); }
+.rg-seen { stroke: color-mix(in srgb, var(--accent) 55%, transparent); stroke-width: 2.4; }
+.rg-path { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.rg-runner { fill: var(--ink); stroke: var(--paper); stroke-width: 3; }
+.rg-end { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+.rg-label { font-family: var(--f-mono); font-size: 22px; letter-spacing: .1em; fill: var(--accent); }
 
 /* clean black-and-white portrait, fading out at the bottom */
 .hero__cutout {
@@ -346,8 +318,8 @@ html:not(.js) .preloader { display: none; }
   -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
   mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
 }
-.hero > :not(.hero__face):not(.hero__aura) { position: relative; z-index: 1; }
-.hero > .hero__bottom { z-index: 3; } /* buttons stay clickable above the photo */
+.hero > :not(.hero__face):not(.hero__aura):not(.hero__marks) { position: relative; z-index: 1; }
+.hero > .hero__bottom, .hero > .hero__meta { z-index: 3; } /* buttons and the meta row stay above the photo and the route */
 
 .hero__title {
   --hero-fs: min(27vw, 42vh, 30rem);
@@ -415,7 +387,45 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 }
 .about__manifesto .word { display: inline-block; text-indent: 0; }
 
-.about__grid { display: grid; grid-template-columns: minmax(260px, 420px) 1fr; gap: clamp(32px, 6vw, 96px); margin-top: clamp(64px, 9vw, 130px); align-items: end; }
+.about__grid { display: grid; grid-template-columns: minmax(260px, 400px) 1fr; gap: clamp(32px, 6vw, 96px); margin-top: clamp(64px, 9vw, 130px); align-items: center; }
+
+/* story → pipeline → DEEPAK.EXE, beside the portrait */
+.about__side { display: flex; flex-direction: column; gap: clamp(22px, 2.6vw, 34px); max-width: 640px; }
+.about__story { display: flex; flex-direction: column; gap: 12px; font-size: clamp(16px, 1.3vw, 19px); color: var(--muted); }
+.about__story em { font-family: var(--f-serif); font-size: 1.18em; color: var(--ink); }
+
+.pipeline { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 0; font-size: 11px; }
+.pipeline li { display: flex; align-items: center; }
+.pipeline li span { padding: 7px 12px; border: 1px solid var(--line); border-radius: 100px; transition: border-color .4s, color .4s, background-color .4s; }
+.pipeline li:last-child span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+/* connector arrow between stages: a line that draws, plus a head */
+.pipeline li + li::before {
+  content: ""; width: clamp(18px, 2.4vw, 34px); height: 1px; margin: 0 2px 0 6px;
+  background: var(--accent); transform-origin: left; transform: scaleX(var(--draw, 1));
+}
+.pipeline li + li span { position: relative; }
+.pipeline li + li span::before {
+  content: ""; position: absolute; left: -9px; top: 50%; width: 6px; height: 6px; margin-top: -3px;
+  border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); rotate: 45deg;
+  opacity: var(--draw, 1);
+}
+
+/* DEEPAK.EXE: same window chrome as the terminal */
+.exe {
+  --t-bg: #121110; --t-bar: #1B1917; --t-fg: #EEE9DF; --t-dim: #8F887D; --t-line: rgba(238, 233, 223, .12); --t-green: #4CD38A;
+  background: var(--t-bg); color: var(--t-fg); border: 1px solid var(--t-line); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 30px 60px -36px rgba(0, 0, 0, .55);
+}
+.exe__bar { display: flex; align-items: center; gap: 12px; padding: 9px 14px; background: var(--t-bar); border-bottom: 1px solid var(--t-line); color: var(--t-dim); font-size: 11px; }
+.exe__dots { display: flex; gap: 5px; }
+.exe__dots i { width: 8px; height: 8px; border-radius: 50%; background: #3A3632; }
+.exe__dots i:first-child { background: var(--accent); }
+.exe__rows { display: grid; gap: 2px; padding: 14px 16px 16px; font-size: 12px; text-transform: none; letter-spacing: .01em; }
+.exe__rows div { display: grid; grid-template-columns: 17ch 1fr; gap: 12px; align-items: baseline; padding: 3px 0; }
+.exe__rows div + div { border-top: 1px dashed var(--t-line); }
+.exe__rows dt { color: var(--accent); white-space: nowrap; }
+.exe__rows dd { color: var(--t-fg); }
+.exe__rows div:last-child dd::after { content: "_"; color: var(--t-green); animation: blink 1s steps(1) infinite; margin-left: 2px; }
 
 .about__portrait { transform-style: preserve-3d; }
 .portrait { position: relative; margin: 0; transform-style: preserve-3d; }
@@ -443,12 +453,14 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 .portrait__caption { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 11px; color: var(--muted); }
 .portrait__caption span:last-child { color: var(--accent); text-align: right; }
 
-.about__stats { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
-.stat { padding: 28px 0 28px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
-.stat:nth-child(odd) { padding-right: 24px; border-right: 1px solid var(--line); }
-.stat:nth-child(even) { padding-left: 24px; }
-.stat__num { font-family: var(--f-display); font-size: clamp(3rem, 7vw, 6.5rem); line-height: 1; }
+/* compact strip after the narrative */
+.about__stats { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: clamp(48px, 6vw, 80px); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stat { padding: 22px 20px; display: flex; flex-direction: column; gap: 6px; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat:first-child { padding-left: 0; }
+.stat__num { font-family: var(--f-display); font-size: clamp(2.4rem, 4.4vw, 4.2rem); line-height: 1; }
 .stat__label { color: var(--muted); font-size: 14px; }
+.stat__src { font-size: 10px; opacity: .8; white-space: nowrap; }
 
 /* ---------- Work (horizontal) ---------- */
 .work { position: relative; }
@@ -914,16 +926,18 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
   .hero__title { --hero-fs: min(32vw, 40vh); margin-top: 6vh; }
   .hero__serif { font-size: .42em; }
   /* phones: the portrait sits top-right behind the big name, as a faint watermark */
-  .hero__face, .hero__aura { top: 70px; bottom: auto; right: -12vw; height: min(52vh, 100vw); }
-  .hero__aura { opacity: .6; }
-  /* the photo is see-through here, so lines and dots would show across the face: glow only */
-  .aura__ring, .aura__grid { display: none; }
+  .hero__face, .hero__aura, .hero__marks { top: 70px; bottom: auto; right: -12vw; height: min(52vh, 100vw); }
+  /* the photo is a see-through watermark here, so anything behind it would show across the face */
+  .hero__aura, .hero__marks { display: none; }
   .hero__face { z-index: 0; --portrait-opacity: .3; } /* faint watermark behind the name, as before */
   .hero__bottom { grid-template-columns: 1fr; gap: 24px; }
 
   .about__manifesto { text-indent: 0; }
   .about__grid { grid-template-columns: 1fr; }
   .about__portrait { max-width: 360px; }
+  .about__stats { grid-template-columns: 1fr 1fr; }
+  .stat:nth-child(3) { border-left: 0; padding-left: 0; }
+  .stat:nth-child(n + 3) { border-top: 1px solid var(--line); }
   .portrait__sticker { left: -6px; }
 
   /* Work becomes vertical */
@@ -958,8 +972,13 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 
 @media (max-width: 520px) {
   .skills { grid-template-columns: 1fr 1fr; gap: 28px 16px; }
-  .stat:nth-child(odd) { padding-right: 12px; }
-  .stat:nth-child(even) { padding-left: 12px; }
+  .stat { padding: 18px 12px; }
+  .stat:nth-child(odd) { padding-left: 0; }
+  .exe__rows div { grid-template-columns: 13.5ch 1fr; gap: 8px; }
+  .pipeline { font-size: 10px; }
+  .pipeline li span { padding: 6px 9px; }
+  .pipeline li + li::before { width: 12px; margin: 0 1px 0 4px; }
+  .stat__src { display: block; margin-top: 2px; }
   .hero__ctas .btn { padding: 14px 20px; }
   .portrait__caption { flex-direction: column; gap: 4px; }
   .portrait__caption span:last-child { text-align: left; }
