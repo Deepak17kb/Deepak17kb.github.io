@@ -1140,6 +1140,8 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 .btn--coffee:hover i { transform: rotate(-12deg) scale(1.2); }
 .coffee__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 .coffee__actions .btn--coffee { margin-top: 0; }
+.coffee__other { align-self: flex-start; font-size: 10px; text-transform: none; color: color-mix(in srgb, var(--paper) 72%, transparent); border-bottom: 1px solid currentColor; }
+.coffee__other:hover { color: var(--paper); }
 /* no UPI ID yet: the buy button stays hidden and the chat leads */
 html:not(.has-upi) .coffee__buy { display: none; }
 .btn--chat { color: var(--paper); border-color: color-mix(in srgb, var(--paper) 45%, transparent); }

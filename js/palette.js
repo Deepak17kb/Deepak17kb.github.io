@@ -53,7 +53,7 @@
     ...(window.DKB_COFFEE && window.DKB_COFFEE.upiReady
       ? [{ group: 'Elsewhere', label: 'Buy me a coffee (UPI)', hint: 'QR ☕', keys: 'support donate tip upi pay', run: () => window.DKB_COFFEE.open() }]
       : []),
-    { group: 'Elsewhere', label: 'Virtual coffee chat', hint: 'email', keys: 'coffee chat meet talk job internship hire', run: () => { window.location.href = window.DKB_COFFEE ? window.DKB_COFFEE.chatHref() : 'mailto:' + D.email; } },
+    { group: 'Elsewhere', label: 'Virtual coffee chat', hint: 'email', keys: 'coffee chat meet talk job internship hire', run: () => openUrl(window.DKB_COFFEE ? window.DKB_COFFEE.chatHref() : 'mailto:' + D.email) },
   ];
 
   // prefix > word start > substring (label or keywords) > loose subsequence (label only)

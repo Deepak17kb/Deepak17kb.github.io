@@ -17,9 +17,9 @@
   document.documentElement.classList.toggle('has-upi', upiReady);
 
   /* ---------- Coffee chat: an email that's already half written ---------- */
-  const chatHref = () => {
-    const subject = 'Virtual coffee chat ☕';
-    const body = [
+  const CHAT_SUBJECT = 'Virtual coffee chat ☕';
+  const chatBody = () => {
+    return [
       'Hi Deepak,',
       '',
       "I saw your portfolio and I'd like to grab a virtual coffee to talk about [a job / an internship / a project].",
@@ -31,9 +31,15 @@
       'Best,',
       '',
     ].join('\n');
-    return `mailto:${D.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
-  document.querySelectorAll('[data-coffee-chat]').forEach((a) => (a.href = chatHref()));
+  const chatHref = () => (api().gmailUrl ? api().gmailUrl(CHAT_SUBJECT, chatBody()) : `mailto:${D.email}`);
+  const chatMailto = () => (api().mailtoUrl ? api().mailtoUrl(CHAT_SUBJECT, chatBody()) : `mailto:${D.email}`);
+  document.querySelectorAll('[data-coffee-chat]').forEach((a) => {
+    a.href = chatHref();
+    a.target = '_blank';
+    a.rel = 'noopener';
+  });
+  document.querySelectorAll('[data-coffee-chat-mailto]').forEach((a) => (a.href = chatMailto()));
 
   /* ---------- UPI ---------- */
   let amount = C.sizes && C.sizes[1] ? C.sizes[1].amount : 0; // default: the middle size
@@ -103,7 +109,7 @@
   let last = null;
   const isOpen = () => dlg.classList.contains('is-open');
   function open() {
-    if (!upiReady) { window.location.href = chatHref(); return; } // nothing to pay into yet: go straight to the chat
+    if (!upiReady) { window.open(chatHref(), '_blank', 'noopener'); return; } // nothing to pay into yet: go straight to the chat
     if (isOpen()) return;
     last = document.activeElement;
     dlg.hidden = false;
@@ -131,5 +137,5 @@
   });
   document.querySelectorAll('[data-coffee-buy]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); open(); }));
 
-  window.DKB_COFFEE = { open, upiReady, chatHref, vpa };
+  window.DKB_COFFEE = { open, upiReady, chatHref, chatMailto, vpa };
 })();

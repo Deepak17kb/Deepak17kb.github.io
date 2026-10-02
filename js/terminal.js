@@ -82,7 +82,7 @@
   ];
   const contact = () => [
     acc('Say hi'),
-    `  email     ${link('mailto:' + D.email, D.email)}  ${dim('(or run')} ${cmd('email')} ${dim('to copy it)')}`,
+    `  email     ${link(api.gmailUrl ? api.gmailUrl() : 'mailto:' + D.email, D.email)}  ${dim('(opens Gmail, or run')} ${cmd('email')} ${dim('to copy it)')}`,
     `  linkedin  ${link(D.links.linkedin, D.links.linkedin.replace('https://', ''))}`,
     `  github    ${link(D.links.github, D.links.github.replace('https://', ''))}`,
     `  cv        ${cmd('cv')}`,

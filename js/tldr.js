@@ -42,7 +42,7 @@
         h('p.tldr__status.mono', [h('i', ''), D.status]),
       ]),
       h('ul.tldr__contact.mono', [
-        h('li', a('mailto:' + D.email, D.email)),
+        h('li', a(api().gmailUrl ? api().gmailUrl() : 'mailto:' + D.email, D.email)),
         h('li', a(D.links.linkedin, strip(D.links.linkedin))),
         h('li', a(D.links.github, strip(D.links.github))),
         h('li', a(D.site, strip(D.site))),

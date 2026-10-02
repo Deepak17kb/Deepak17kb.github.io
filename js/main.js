@@ -135,25 +135,36 @@
     })
   );
 
+  /* ---------- Compose an email: Gmail in a new tab, not the OS mail app ---------- */
+  // mailto: hands off to whatever desktop mail client is the default (often Outlook);
+  // Gmail's compose URL opens the draft in the browser with everything filled in.
+  const gmailUrl = (subject = '', body = '') => {
+    const q = [`view=cm`, `fs=1`, `to=${encodeURIComponent(EMAIL)}`];
+    if (subject) q.push(`su=${encodeURIComponent(subject)}`);
+    if (body) q.push(`body=${encodeURIComponent(body)}`);
+    return `https://mail.google.com/mail/?${q.join('&')}`;
+  };
+  const mailtoUrl = (subject = '', body = '') =>
+    `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const compose = (subject, body) => window.open(gmailUrl(subject, body), '_blank', 'noopener');
+
   /* ---------- Copy email ---------- */
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(EMAIL);
       toast('Email copied. Talk soon ✦');
     } catch (e) {
-      window.location.href = `mailto:${EMAIL}`;
+      compose();
     }
   };
   $$('[data-copy]').forEach((btn) => btn.addEventListener('click', copyEmail));
 
-  /* ---------- Contact form → mailto ---------- */
+  /* ---------- Contact form → Gmail draft ---------- */
   $('#contact-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
-    const subject = encodeURIComponent(`Hello from ${f.get('name')} (via portfolio)`);
-    const body = encodeURIComponent(`${f.get('message')}\n\n— ${f.get('name')}\n${f.get('email')}`);
-    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
-    toast('Opening your mail app ✉');
+    compose(`Hello from ${f.get('name')} (via portfolio)`, `${f.get('message')}\n\n— ${f.get('name')}\n${f.get('email')}`);
+    toast('Opening Gmail with your message ✉');
     e.target.reset();
   });
 
@@ -187,7 +198,7 @@
   }
 
   /* ---------- Shared API for lab / terminal / palette ---------- */
-  window.DKB = { toast, scrollTo: scrollToTarget, setTheme, toggleTheme, copyEmail, coffeeRain, lockScroll };
+  window.DKB = { toast, scrollTo: scrollToTarget, setTheme, toggleTheme, copyEmail, coffeeRain, lockScroll, gmailUrl, mailtoUrl, compose };
 
   /* ---------- Pause decorative loops while they're off-screen ---------- */
   if ('IntersectionObserver' in window && !reduced) {
