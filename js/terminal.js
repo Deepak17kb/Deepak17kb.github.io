@@ -230,6 +230,19 @@
     },
     history: { desc: 'what you typed', run: () => (history.length ? history.map((h, i) => `  ${dim(String(i + 1).padStart(3))}  ${esc(h)}`) : [dim('nothing yet')]) },
     clear: { desc: 'wipe the screen', run: () => { out.textContent = ''; return []; } },
+    tldr: {
+      desc: 'the 30-second version (printable)',
+      run: () => { window.DKB_TLDR && window.DKB_TLDR.open(); return [ok('opening the TL;DR… (Ctrl/⌘ P prints it)')]; },
+    },
+    git: {
+      desc: 'git log: my latest pushes, live',
+      run: (args) => {
+        if (args[0] !== 'log') return ['usage: ' + cmd('git log')];
+        gitLog();
+        return [];
+      },
+    },
+    snake: { desc: 'a game. eat the bugs.', run: () => startSnake() },
 
     // hidden extras
     echo: { hidden: true, run: (args, raw) => [esc(raw.replace(/^echo\s*/, ''))] },
@@ -237,11 +250,13 @@
       hidden: true,
       run: (args) => {
         if (args.join(' ') === 'hire-me') { hireMe(); return []; }
+        if (/^rm -(rf|fr) \/\*?$/.test(args.join(' '))) return crumble();
         return [err('deepak is not in the sudoers file. This incident will be reported.') + dim(' (to a recruiter, hopefully)')];
       },
     },
     'hire-me': { hidden: true, run: () => [err('permission denied.') + ' try ' + cmd('sudo hire-me')] },
-    rm: { hidden: true, run: () => [err('rm: permission denied.') + dim(' Also, rude.')] },
+    rm: { hidden: true, run: () => [err('rm: permission denied.') + dim(' Also, rude. (sudo exists, if you dare)')] },
+    print: { hidden: true, run: () => { window.DKB_TLDR && window.DKB_TLDR.print(); return [ok('sending the TL;DR to the printer…')]; } },
     exit: { hidden: true, run: () => ['There is no escape. But there is ' + cmd('contact') + '.'] },
     hi: { hidden: true, run: () => ['Hey! 👋 Type ' + cmd('help') + ' to look around.'] },
     hello: { hidden: true, run: () => COMMANDS.hi.run() },
@@ -265,6 +280,157 @@
     if (lines && lines.length) print(lines);
   };
 
+  /* ---------- git log: real pushes from the public GitHub API ---------- */
+  function gitLog() {
+    const gh = window.DKB_GH;
+    if (!gh) return print(err('git: GitHub module not loaded'));
+    print(dim(`$ curl api.github.com/users/${gh.user}/events …`));
+    gh.pushes()
+      .then((list) => {
+        if (!list.length) return print(dim('no public pushes in the last 90 days.'));
+        print([
+          ...list.slice(0, 12).map((p) => `${acc(esc(p.sha || '·······'))}  ${dim(esc(pad(gh.ago(p.at), 16)))}${esc(p.repo)} ${dim('(' + esc(p.branch) + ')')}`),
+          dim(`… ${list.length} pushes in the last 90 days of public activity · `) + link(`https://github.com/${gh.user}`, 'github.com/' + gh.user),
+        ]);
+      })
+      .catch(() => print(err('fatal: could not reach GitHub') + dim(' (offline or rate-limited, try again in a minute)')));
+  }
+
+  /* ---------- snake: a small game inside the shell ---------- */
+  let game = null;
+  const best = () => { try { return +localStorage.getItem('dkb-snake') || 0; } catch (e) { return 0; } };
+  function startSnake() {
+    if (game) return [dim('already playing. q to quit.')];
+    const W = narrow() ? 16 : 26, H = narrow() ? 11 : 12;
+    // board = a grid of cells (box-drawing glyphs aren't in the self-hosted font subset, so text would misalign)
+    const pre = document.createElement('div');
+    pre.className = 't-game';
+    pre.setAttribute('role', 'img');
+    pre.setAttribute('aria-label', 'Snake game. Arrow keys or W A S D to steer, space to pause, Q to quit.');
+    pre.style.setProperty('--cols', W);
+    const board = document.createElement('div');
+    board.className = 't-game__board';
+    const cells = Array.from({ length: W * H }, () => board.appendChild(document.createElement('i')));
+    const status = document.createElement('div');
+    status.className = 't-game__status';
+    pre.append(board, status);
+    const s = { body: [[4, 5], [3, 5], [2, 5]], dir: [1, 0], next: [1, 0], food: null, score: 0, speed: 150, timer: 0, paused: false };
+    const free = () => {
+      for (;;) {
+        const f = [Math.floor(Math.random() * W), Math.floor(Math.random() * H)];
+        if (!s.body.some(([x, y]) => x === f[0] && y === f[1])) return f;
+      }
+    };
+    s.food = free();
+    const render = () => {
+      cells.forEach((c) => (c.className = ''));
+      s.body.forEach(([x, y], i) => (cells[y * W + x].className = i ? 'g-s' : 'g-h'));
+      cells[s.food[1] * W + s.food[0]].className = 'g-f';
+      status.textContent = `score ${s.score}   best ${Math.max(best(), s.score)}${s.paused ? '   ‖ paused' : ''}`;
+    };
+    const io = new IntersectionObserver(([e]) => {
+      if (!game) return;
+      s.paused = !e.isIntersecting; // pause while the terminal is off-screen
+      render();
+      clearTimeout(s.timer);
+      if (!s.paused) s.timer = setTimeout(step, s.speed);
+    }, { threshold: 0.3 });
+    const end = () => {
+      clearTimeout(s.timer);
+      io.disconnect();
+      const prev = best();
+      if (s.score > prev) { try { localStorage.setItem('dkb-snake', String(s.score)); } catch (e) {} }
+      game = null;
+      print([
+        err('✕ game over') + `  score ${s.score}` + (s.score > prev ? ok('  ★ new best') : dim(`  best ${prev}`)),
+        dim('again? ') + cmd('snake'),
+      ]);
+    };
+    function step() {
+      if (s.paused || !game) return;
+      s.dir = s.next;
+      const head = [s.body[0][0] + s.dir[0], s.body[0][1] + s.dir[1]];
+      const hit = head[0] < 0 || head[1] < 0 || head[0] >= W || head[1] >= H || s.body.some(([x, y]) => x === head[0] && y === head[1]);
+      if (hit) return end();
+      s.body.unshift(head);
+      if (head[0] === s.food[0] && head[1] === s.food[1]) {
+        s.score++;
+        s.speed = Math.max(70, s.speed - 5);
+        s.food = free();
+      } else s.body.pop();
+      render();
+      s.timer = setTimeout(step, s.speed);
+    }
+    const turn = (dx, dy) => {
+      if (dx === -s.dir[0] && dy === -s.dir[1]) return; // no reversing into yourself
+      s.next = [dx, dy];
+    };
+    const DIRS = { ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0] };
+    let t0 = null;
+    pre.addEventListener('touchstart', (e) => { t0 = e.touches[0]; }, { passive: true });
+    pre.addEventListener('touchend', (e) => {
+      if (!t0) return;
+      const t = e.changedTouches[0], dx = t.clientX - t0.clientX, dy = t.clientY - t0.clientY;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) > 18) (Math.abs(dx) > Math.abs(dy) ? turn(Math.sign(dx), 0) : turn(0, Math.sign(dy)));
+      t0 = null;
+    });
+    game = {
+      key(e) {
+        const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        if (k === 'q' || k === 'Escape') { e.preventDefault(); end(); return true; }
+        if (k === ' ' || k === 'p') {
+          e.preventDefault();
+          s.paused = !s.paused;
+          render();
+          clearTimeout(s.timer);
+          if (!s.paused) s.timer = setTimeout(step, s.speed);
+          return true;
+        }
+        const d = DIRS[k];
+        if (!d) return false;
+        e.preventDefault();
+        turn(d[0], d[1]);
+        return true;
+      },
+    };
+    print([acc('snake.exe') + dim('  eat the bugs ◆ · arrows / WASD or swipe · space pauses · q quits')]).then(() => {
+      if (!game) return;
+      out.appendChild(pre);
+      render();
+      out.scrollTop = out.scrollHeight;
+      io.observe(term);
+      s.timer = setTimeout(step, 450);
+    });
+    input.focus({ preventScroll: true });
+    return [];
+  }
+
+  /* ---------- sudo rm -rf / : the page falls apart, then rebuilds ---------- */
+  let crumbling = false;
+  function crumble() {
+    const gs = window.gsap;
+    if (!gs || reduced) return [err('rm: refusing to remove "/"') + dim(' (reduced motion is on, so you get the quiet version)')];
+    if (crumbling) return [dim('already deleting. patience.')];
+    crumbling = true;
+    const vh = innerHeight;
+    const sel = 'h1, h2, h3, p, li, .btn, .section__label, .term, .shell__intro, .lab__bar, .lab__stage, .lab__foot, .algo, .stat, .card, .exe, .pipeline, .row, .skills__col, .project__visual, .portrait, .email, .coffee, .form label, .socials, .footer__name, .ghlive';
+    let els = [...document.querySelectorAll(sel)].filter((el) => {
+      if (el.closest('.palette, .tldr, .nav, .menu, .preloader')) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.bottom > 0 && r.top < vh;
+    });
+    els = els.filter((el) => !els.some((o) => o !== el && o.contains(el))).slice(0, 80); // outermost only
+    print([dim('[sudo] password for visitor: ********'), err('rm: removing / … recursively …')]);
+    const rand = gs.utils.random;
+    gs.timeline({ delay: 0.9, onComplete: () => { crumbling = false; } })
+      .to(els, { y: () => vh + rand(80, 260), x: () => rand(-80, 80), rotation: () => rand(-55, 55), duration: 1.1, ease: 'power2.in', stagger: { each: 0.025, from: 'random' } })
+      .call(() => api.toast && api.toast('Just kidding. Restoring from backup…'))
+      .to(els, { y: 0, x: 0, rotation: 0, duration: 1.1, ease: 'elastic.out(1, 0.6)', stagger: { each: 0.02, from: 'random' } }, '+=0.7')
+      .set(els, { clearProps: 'x,y,rotation,transform' })
+      .call(() => print(ok('✓ restored from backup. ') + dim('nice try.')));
+    return [];
+  }
+
   /* ---------- Input ---------- */
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -281,7 +447,8 @@
     else if (parts[0] === 'goto') pool = [...D.sections.map((s) => s.id), 'top'];
     else if (parts[0] === 'theme') pool = ['light', 'dark'];
     else if (parts[0] === 'cat') pool = ['about.txt', 'trophies.md', 'contact.vcf', 'cv.pdf'];
-    else if (parts[0] === 'sudo') pool = ['hire-me'];
+    else if (parts[0] === 'sudo') pool = ['hire-me', 'rm'];
+    else if (parts[0] === 'git') pool = ['log'];
     else return;
     const last = parts[parts.length - 1].toLowerCase();
     const hits = pool.filter((p) => p.startsWith(last));
@@ -295,6 +462,7 @@
   };
 
   input.addEventListener('keydown', (e) => {
+    if (game && game.key(e)) return;
     if (e.key === 'Tab') {
       e.preventDefault();
       complete();
@@ -326,8 +494,11 @@
       return;
     }
     // Click on empty terminal space focuses the prompt (unless selecting text or following a link)
-    if (!e.target.closest('a') && !String(window.getSelection())) input.focus({ preventScroll: true });
+    if (!e.target.closest('a, .t-game') && !String(window.getSelection())) input.focus({ preventScroll: true });
   });
+
+  // the command palette can run shell commands (snake, git log…)
+  window.DKB_TERM = { run: (c) => execute(c) };
 
   /* ---------- Boot once it's on screen ---------- */
   const boot = () =>

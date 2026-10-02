@@ -23,6 +23,10 @@
     a.remove();
   };
   const go = (id, opts) => api.scrollTo && api.scrollTo(id, opts);
+  const runInTerminal = (c) => {
+      go('#terminal', { offset: -80 });
+      setTimeout(() => { window.DKB_TERM && window.DKB_TERM.run(c); document.querySelector('.term__input')?.focus({ preventScroll: true }); }, 1100);
+    };
 
   const items = [
     ...(D.sections || []).map((s) => ({ group: 'Go to', label: s.label, hint: '#' + s.id, keys: s.id, run: () => go('#' + s.id, s.id === 'terminal' ? { offset: -80 } : undefined) })),
@@ -38,6 +42,10 @@
       },
     },
     { group: 'Actions', label: 'Generate a maze in the Path Lab', hint: 'A* · Dijkstra', keys: 'graph lab pathfinding', run: () => { go('#lab'); document.querySelector('[data-lab="maze"]')?.click(); } },
+    { group: 'Actions', label: 'TL;DR — the 30-second version', hint: 'résumé', keys: 'tldr summary recruiter quick short resume cv', run: () => window.DKB_TLDR && window.DKB_TLDR.open() },
+    { group: 'Actions', label: 'Print a one-page résumé', hint: 'PDF', keys: 'print pdf resume cv save', run: () => window.DKB_TLDR && window.DKB_TLDR.print() },
+    { group: 'Actions', label: 'Latest pushes, live from GitHub', hint: 'git log', keys: 'git log commits activity github live', run: () => runInTerminal('git log') },
+    { group: 'Actions', label: 'Play snake in the terminal', hint: 'game', keys: 'snake game play fun', run: () => runInTerminal('snake') },
     { group: 'Actions', label: 'Make it rain chai', hint: '☕', keys: 'coffee easter egg konami', run: () => api.coffeeRain() },
     ...(D.projects || []).map((p) => ({ group: 'Projects', label: p.name, hint: p.demo ? 'live demo ↗' : 'GitHub ↗', keys: p.what, run: () => openUrl(p.demo || p.code) })),
     { group: 'Elsewhere', label: 'GitHub', hint: '↗', keys: 'code repos', run: () => openUrl(D.links.github) },

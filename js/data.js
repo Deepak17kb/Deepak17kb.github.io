@@ -4,6 +4,8 @@
    ========================================================= */
 window.DKB_DATA = {
   name: 'Deepak Kumar Behera',
+  site: 'https://deepak17kb.github.io/',
+  oneLiner: 'A developer who thinks in graphs, ships with TypeScript and tells stories with data.',
   email: 'deepak7521b@gmail.com',
   cv: 'assets/Deepak-Kumar-Behera-CV.pdf',
   cgpa: '8.04',
@@ -24,10 +26,10 @@ window.DKB_DATA = {
   ],
 
   projects: [
-    { key: 'broadbridge', name: 'BroadBridge', what: 'AI wealth navigator, Monte Carlo goal odds', stack: 'TypeScript · React · Node · Claude/Groq', demo: 'https://deepak17kb.github.io/BroadBridge/', code: 'https://github.com/Deepak17kb/BroadBridge' },
-    { key: 'upi', name: 'UPI Risk Desk', what: 'Fraud-ring detection, Best Pipeline @ AgentIQ Datathon', stack: 'Python · pandas · NetworkX · SQLite · Claude', demo: 'https://adityashukla2615.github.io/upi-risk-desk/outputs/upi_risk_desk.html?v=2', code: 'https://github.com/Deepak17kb/upi-risk-desk' },
-    { key: 'saferoute', name: 'NER SafeRoute', what: 'Hazard-aware truck routing for Northeast India', stack: 'FastAPI · React · Leaflet · PostGIS · scikit-learn', demo: 'https://ner-safe-route-psi.vercel.app/', code: 'https://github.com/Deepak17kb/NER-SafeRoute' },
-    { key: 'lifeline', name: 'LifeLine', what: 'Transit routing & emergency simulator', stack: 'C++17 · React · REST · graph algorithms', demo: 'https://lifeline-31iq.onrender.com', code: 'https://github.com/Deepak17kb/lifeline' },
+    { key: 'broadbridge', name: 'BroadBridge', featured: true, when: 'Sep 2026', metrics: ['239 tests passing', '9 what-if levers', '12 ranked-action rules'], what: 'AI wealth navigator, Monte Carlo goal odds', stack: 'TypeScript · React · Node · Claude/Groq', demo: 'https://deepak17kb.github.io/BroadBridge/', code: 'https://github.com/Deepak17kb/BroadBridge' },
+    { key: 'upi', name: 'UPI Risk Desk', featured: true, team: true, when: 'Sep 2026', metrics: ['20K UPI payments analysed', '121 dispute rings found', '5 AI risk agents'], what: 'Fraud-ring detection, Best Pipeline @ AgentIQ Datathon', stack: 'Python · pandas · NetworkX · SQLite · Claude', demo: 'https://adityashukla2615.github.io/upi-risk-desk/outputs/upi_risk_desk.html?v=2', code: 'https://github.com/Deepak17kb/upi-risk-desk' },
+    { key: 'saferoute', name: 'NER SafeRoute', featured: true, when: 'Sep 2026 · SIH', metrics: ['87.1% balanced accuracy (risk model)', '3,447 road segments scored', '8 NE states'], what: 'Hazard-aware truck routing for Northeast India', stack: 'FastAPI · React · Leaflet · PostGIS · scikit-learn', demo: 'https://ner-safe-route-psi.vercel.app/', code: 'https://github.com/Deepak17kb/NER-SafeRoute' },
+    { key: 'lifeline', name: 'LifeLine', featured: true, when: 'Feb 2026', metrics: ['40 locations', '83 roads modelled', '96/96 tests passing'], what: 'Transit routing & emergency simulator', stack: 'C++17 · React · REST · graph algorithms', demo: 'https://lifeline-31iq.onrender.com', code: 'https://github.com/Deepak17kb/lifeline' },
     { key: 'krishimitra', name: 'KrishiMitra', what: 'AI farming assistant', stack: 'Node · Express · Gemini API', demo: 'https://krishi-mitra-silk-nine.vercel.app' },
     { key: 'jobs', name: 'Global Jobs Analytics', what: 'Power BI dashboard over 100K+ job records', stack: 'Power BI · DAX · Power Query', code: 'https://github.com/Deepak17kb/Global-Jobs-Hiring-Analytics' },
     { key: 'deadlock', name: 'Deadlock Detector', what: 'OS wait-for graph analysis', demo: 'https://automated-deadlock-detection-tool.vercel.app' },

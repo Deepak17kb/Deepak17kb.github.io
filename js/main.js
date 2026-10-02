@@ -684,6 +684,22 @@
     });
   });
 
+  // Footer name: letters near the cursor lift, like keys being pressed in reverse
+  const footName = $('.footer__name');
+  const letters = footName ? $$('.fl', footName) : [];
+  if (letters.length) {
+    const lift = letters.map((l) => gsap.quickTo(l, 'yPercent', { duration: 0.5, ease: 'power3' }));
+    let centres = [];
+    const measure = () => (centres = letters.map((l) => { const r = l.getBoundingClientRect(); return r.left + r.width / 2; }));
+    footName.addEventListener('pointerenter', measure);
+    footName.addEventListener('pointermove', (e) => {
+      if (!centres.length) measure();
+      const span = innerWidth * 0.16;
+      centres.forEach((c, i) => lift[i](-14 * Math.max(0, 1 - Math.abs(e.clientX - c) / span)));
+    });
+    footName.addEventListener('pointerleave', () => lift.forEach((f) => f(0)));
+  }
+
   // 3D tilt + glare: one reusable tween per axis instead of a new tween per mousemove
   $$('[data-tilt]').forEach((el) => {
     gsap.set(el, { transformPerspective: 900 });

@@ -10,8 +10,33 @@
   <meta property="og:title" content="Deepak Kumar Behera — Portfolio" />
   <meta property="og:description" content="Full-stack apps, AI agents & data stories. Datathon winner · Top 10 Algo Arena · Top 30 CodeXtreme." />
   <meta property="og:url" content="https://deepak17kb.github.io/" />
-  <meta property="og:image" content="https://deepak17kb.github.io/assets/deepak-portrait.webp" />
+  <meta property="og:site_name" content="Deepak Kumar Behera" />
+  <meta property="og:image" content="https://deepak17kb.github.io/assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Deepak Kumar Behera: portrait, name and highlights on a dark card with an orange route through a graph" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Deepak Kumar Behera — Portfolio" />
+  <meta name="twitter:description" content="Full-stack apps, AI agents & data stories. Datathon winner · Top 10 Algo Arena · Top 30 CodeXtreme." />
+  <meta name="twitter:image" content="https://deepak17kb.github.io/assets/og-image.jpg" />
+  <meta name="author" content="Deepak Kumar Behera" />
   <link rel="canonical" href="https://deepak17kb.github.io/" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Deepak Kumar Behera",
+    "url": "https://deepak17kb.github.io/",
+    "image": "https://deepak17kb.github.io/assets/deepak-portrait.webp",
+    "description": "Computer Science undergraduate at Lovely Professional University building full-stack apps, AI agents and data analytics.",
+    "alumniOf": { "@type": "CollegeOrUniversity", "name": "Lovely Professional University" },
+    "homeLocation": { "@type": "Place", "name": "Phagwara, Punjab, India" },
+    "knowsAbout": ["Python", "SQL", "C++", "TypeScript", "React", "Node.js", "Machine learning", "Graph algorithms", "Power BI", "Data analytics"],
+    "sameAs": ["https://github.com/Deepak17kb", "https://linkedin.com/in/deepak-kumarbehera"]
+  }
+  </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121110'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' dominant-baseline='middle' font-family='Georgia,serif' font-style='italic' font-size='38' fill='%23FF4A1C'%3Ed%3C/text%3E%3C/svg%3E" />
 
   <!-- fonts and libraries are self-hosted: no third-party connections before first paint -->
@@ -141,6 +166,7 @@
         <div class="hero__ctas fade-up">
           <a href="#work" class="btn btn--fill" data-link data-magnetic><span>See my work</span><i>↘</i></a>
           <a href="assets/Deepak-Kumar-Behera-CV.pdf" class="btn" download data-magnetic><span>Download CV</span><i>↓</i></a>
+          <button type="button" class="hero__tldr mono" data-tldr-open>Short on time? <span>The 30-second TL;DR</span> <i aria-hidden="true">→</i></button>
         </div>
         <a href="#about" class="badge" data-link aria-label="Scroll to explore">
           <svg viewBox="0 0 200 200" class="badge__text" aria-hidden="true">
@@ -725,13 +751,37 @@
       <span class="mono">Designed &amp; built by Deepak, with too much chai.</span>
       <a href="#top" class="link-arrow" data-link>Back to top <i>↑</i></a>
     </div>
-    <div class="footer__name" aria-hidden="true">DEEPAK<span>©</span></div>
+    <!-- real public pushes from the GitHub API; hidden if it can't be reached -->
+    <a class="ghlive mono" href="https://github.com/Deepak17kb" target="_blank" rel="noopener" hidden>
+      <span class="ghlive__dot" aria-hidden="true"></span>
+      <span class="ghlive__label">Live from GitHub</span>
+      <span>last push <b data-gh-last>—</b></span>
+      <span class="ghlive__bars" aria-hidden="true"></span>
+      <span data-gh-count></span>
+    </a>
+    <div class="footer__name" aria-hidden="true"><span class="fl">D</span><span class="fl">E</span><span class="fl">E</span><span class="fl">P</span><span class="fl">A</span><span class="fl">K</span><span class="fl fl--c">©</span></div>
     <div class="footer__bottom mono">
       <span>© 2026 Deepak Kumar Behera</span>
-      <span class="hide-sm">Psst… try ↑ ↑ ↓ ↓ ← → ← → B A</span>
+      <span class="hide-sm">Psst… try ↑ ↑ ↓ ↓ ← → ← → B A, or print this page</span>
       <span>Phagwara, IN · <span data-clock>--:--</span></span>
     </div>
   </footer>
+
+  <!-- ============ TL;DR (also the print layout) ============ -->
+  <div class="tldr" hidden>
+    <div class="tldr__backdrop" data-tldr-close></div>
+    <div class="tldr__panel" role="dialog" aria-modal="true" aria-labelledby="tldr-title" tabindex="-1">
+      <div class="tldr__bar">
+        <span class="mono tldr__hint">Tip: <kbd data-kbd-mod>Ctrl</kbd> + <kbd>P</kbd> anywhere prints this sheet</span>
+        <div class="tldr__actions">
+          <button type="button" class="btn btn--sm btn--fill" data-tldr-print><span>Print / save PDF</span><i>↓</i></button>
+          <button type="button" class="btn btn--sm" data-tldr-copy><span>Copy email</span><i>@</i></button>
+          <button type="button" class="tldr__x" data-tldr-close aria-label="Close TL;DR">✕</button>
+        </div>
+      </div>
+      <article class="tldr__sheet" data-lenis-prevent></article>
+    </div>
+  </div>
 
   <!-- ============ COMMAND PALETTE ============ -->
   <div class="palette" hidden>
@@ -758,5 +808,7 @@
   <script src="js/lab.js" defer></script>
   <script src="js/terminal.js" defer></script>
   <script src="js/palette.js" defer></script>
+  <script src="js/tldr.js" defer></script>
+  <script src="js/github.js" defer></script>
 </body>
 </html>

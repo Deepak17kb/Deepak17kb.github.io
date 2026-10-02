@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No path found — Deepak Kumar Behera</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#121110" />
+  <link rel="icon" href="/assets/icons/icon-192.png" />
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('dkb-theme'); } catch (e) {}
+      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <style>
+    @font-face { font-family: 'Anton'; font-display: swap; src: url(/assets/fonts/anton-normal-latin-1.woff2) format('woff2'); }
+    @font-face { font-family: 'Instrument Serif'; font-style: italic; font-display: swap; src: url(/assets/fonts/instrument-serif-italic-latin-3.woff2) format('woff2'); }
+    @font-face { font-family: 'Inter Tight'; font-weight: 400 600; font-display: swap; src: url(/assets/fonts/inter-tight-normal-latin-7.woff2) format('woff2'); }
+    @font-face { font-family: 'JetBrains Mono'; font-weight: 400 500; font-display: swap; src: url(/assets/fonts/jetbrains-mono-normal-latin-9.woff2) format('woff2'); }
+
+    :root { --paper: #EEE9DF; --ink: #121110; --muted: #625D55; --line: rgba(18,17,16,.16); --accent: #FF4A1C; --accent-text: #B4330F; --card: #F6F2EA; }
+    [data-theme="dark"] { --paper: #0F0E0D; --ink: #EEE9DF; --muted: #948D82; --line: rgba(238,233,223,.14); --accent: #FF5A2E; --accent-text: #FF5A2E; --card: #1A1816; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--paper); color: var(--ink); font-family: 'Inter Tight', system-ui, sans-serif;
+      display: grid; place-items: center; padding: 24px 16px; overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    main { width: min(1040px, 100%); display: grid; grid-template-columns: 1fr minmax(260px, 420px); gap: clamp(24px, 5vw, 72px); align-items: center; }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: .02em; text-transform: uppercase; }
+    .kicker { color: var(--muted); }
+    .kicker b { color: var(--accent-text); font-weight: 500; }
+    h1 { font-family: 'Anton', Impact, sans-serif; font-weight: 400; font-size: clamp(7rem, 22vw, 15rem); line-height: .82; letter-spacing: -.02em; margin: 14px 0 6px; }
+    h2 { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1; }
+    h2 span { color: var(--accent); }
+    .log { margin: 22px 0 28px; display: grid; gap: 6px; color: var(--muted); font-size: 12px; text-transform: none; }
+    .log code { color: var(--ink); word-break: break-all; }
+    .log .err { color: var(--accent-text); }
+    .log .ok { color: #1F8A57; }
+    [data-theme="dark"] .log .ok { color: #4CD38A; }
+    .log div { opacity: 0; animation: in .3s ease forwards; }
+    .log div:nth-child(2) { animation-delay: .7s; } .log div:nth-child(3) { animation-delay: 1.6s; } .log div:nth-child(4) { animation-delay: 2.4s; }
+    @keyframes in { to { opacity: 1; } }
+    .btn {
+      display: inline-flex; align-items: center; gap: 14px; padding: 16px 26px; border-radius: 100px;
+      background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; font-size: 15px;
+      transition: background-color .3s, color .3s;
+    }
+    .btn:hover, .btn:focus-visible { background: var(--accent); color: #fff; }
+    .btn i { font-style: normal; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    .links { margin-top: 18px; display: flex; gap: 20px; flex-wrap: wrap; }
+    .links a { color: var(--ink); font-size: 14px; }
+
+    figure { aspect-ratio: 1; background: var(--card); border: 1px solid var(--line); border-radius: 10px; position: relative; overflow: hidden; }
+    figure svg { width: 100%; height: 100%; display: block; }
+    figcaption { position: absolute; left: 14px; bottom: 12px; color: var(--muted); }
+    .e { stroke: var(--ink); stroke-width: 2; opacity: .16; }
+    .n { fill: var(--card); stroke: var(--ink); stroke-width: 2; opacity: .7; }
+    .lbl { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: .08em; fill: var(--muted); }
+    .lbl.hot { fill: var(--accent); }
+    .try { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 330; stroke-dashoffset: 330; animation: draw 1s ease-in-out .3s forwards, fail .4s ease 1.3s forwards; }
+    .x { fill: var(--accent); font: 700 26px system-ui, sans-serif; opacity: 0; animation: in .2s ease 1.3s forwards; }
+    .home { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 520; stroke-dashoffset: 520; animation: draw 1.3s cubic-bezier(.76,0,.24,1) 1.9s forwards; }
+    .dest { fill: var(--accent); }
+    .you { fill: var(--ink); }
+    .ghost { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 6; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes fail { to { opacity: .25; } }
+    @media (max-width: 760px) { main { grid-template-columns: 1fr; } figure { max-width: 420px; } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0s !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div>
+      <p class="mono kicker"><b>(404)</b> Route not found</p>
+      <h1>404</h1>
+      <h2>No path to <span>this page.</span></h2>
+      <div class="log mono" aria-live="polite">
+        <div>$ dijkstra --to <code id="req">/this-page</code></div>
+        <div class="err">✕ unreachable: no edge leads there</div>
+        <div>recalculating route…</div>
+        <div class="ok">✓ shortest path found: / (home)</div>
+      </div>
+      <a class="btn" href="/">Route me home <i>→</i></a>
+      <div class="links mono">
+        <a href="/#work">Projects</a>
+        <a href="/#lab">Path Lab</a>
+        <a href="/#contact">Contact</a>
+      </div>
+    </div>
+    <figure aria-hidden="true">
+      <svg viewBox="0 0 400 400">
+        <g>
+          <line class="e" x1="60" y1="300" x2="150" y2="230"/><line class="e" x1="150" y1="230" x2="250" y2="250"/>
+          <line class="e" x1="250" y1="250" x2="330" y2="160"/><line class="e" x1="150" y1="230" x2="130" y2="120"/>
+          <line class="e" x1="130" y1="120" x2="230" y2="80"/><line class="e" x1="230" y1="80" x2="330" y2="160"/>
+          <line class="e" x1="60" y1="300" x2="180" y2="340"/><line class="e" x1="180" y1="340" x2="250" y2="250"/>
+          <line class="e" x1="130" y1="120" x2="60" y2="80"/><line class="e" x1="230" y1="80" x2="300" y2="50"/>
+        </g>
+        <!-- the requested page: a node with no edges -->
+        <circle class="ghost" cx="335" cy="320" r="18"/>
+        <text class="lbl" x="335" y="365" text-anchor="middle">?</text>
+        <polyline class="try" points="60,300 180,340 250,250 300,300"/>
+        <text class="x" x="292" y="310">✕</text>
+        <polyline class="home" points="60,300 150,230 130,120 60,80"/>
+        <g>
+          <circle class="n" cx="150" cy="230" r="7"/><circle class="n" cx="250" cy="250" r="7"/><circle class="n" cx="330" cy="160" r="7"/>
+          <circle class="n" cx="130" cy="120" r="7"/><circle class="n" cx="230" cy="80" r="7"/><circle class="n" cx="180" cy="340" r="7"/>
+          <circle class="n" cx="300" cy="50" r="7"/>
+        </g>
+        <circle class="you" cx="60" cy="300" r="11"/>
+        <text class="lbl" x="60" y="335" text-anchor="middle">YOU</text>
+        <circle class="dest" cx="60" cy="80" r="12"/>
+        <text class="lbl hot" x="60" y="52" text-anchor="middle">HOME</text>
+      </svg>
+      <figcaption class="mono">dead end, rerouted</figcaption>
+    </figure>
+  </main>
+  <script>
+    // Show the path that was asked for (as text, never as HTML)
+    var path = location.pathname;
+    try { path = decodeURIComponent(path); } catch (e) {} // malformed escapes: show it raw
+    document.getElementById('req').textContent = path.slice(0, 60) || '/';
+  </script>
+</body>
+</html>
