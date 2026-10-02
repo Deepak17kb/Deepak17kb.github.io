@@ -16,24 +16,9 @@
   const vpa = upiReady ? C.upi.trim() : '';
   document.documentElement.classList.toggle('has-upi', upiReady);
 
-  /* ---------- Coffee chat: an email that's already half written ---------- */
-  const CHAT_SUBJECT = 'Virtual coffee chat ☕';
-  const chatBody = () => {
-    return [
-      'Hi Deepak,',
-      '',
-      "I saw your portfolio and I'd like to grab a virtual coffee to talk about [a job / an internship / a project].",
-      '',
-      'A couple of times that work for me (with time zone):',
-      '- ',
-      '- ',
-      '',
-      'Best,',
-      '',
-    ].join('\n');
-  };
-  const chatHref = () => (api().gmailUrl ? api().gmailUrl(CHAT_SUBJECT, chatBody()) : `mailto:${D.email}`);
-  const chatMailto = () => (api().mailtoUrl ? api().mailtoUrl(CHAT_SUBJECT, chatBody()) : `mailto:${D.email}`);
+  /* ---------- Coffee chat: Gmail compose addressed to me, in a new tab ---------- */
+  const chatHref = () => (api().gmailUrl ? api().gmailUrl() : `https://mail.google.com/mail/?view=cm&fs=1&to=${D.email}`);
+  const chatMailto = () => `mailto:${D.email}?subject=${encodeURIComponent('Virtual coffee chat')}`;
   document.querySelectorAll('[data-coffee-chat]').forEach((a) => {
     a.href = chatHref();
     a.target = '_blank';

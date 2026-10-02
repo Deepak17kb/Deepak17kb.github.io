@@ -139,7 +139,7 @@
   // mailto: hands off to whatever desktop mail client is the default (often Outlook);
   // Gmail's compose URL opens the draft in the browser with everything filled in.
   const gmailUrl = (subject = '', body = '') => {
-    const q = [`view=cm`, `fs=1`, `to=${encodeURIComponent(EMAIL)}`];
+    const q = ['view=cm', 'fs=1', `to=${EMAIL}`];
     if (subject) q.push(`su=${encodeURIComponent(subject)}`);
     if (body) q.push(`body=${encodeURIComponent(body)}`);
     return `https://mail.google.com/mail/?${q.join('&')}`;
