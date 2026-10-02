@@ -200,7 +200,7 @@
         }),
       { rootMargin: '120px' }
     );
-    $$('.project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
+    $$('.hero__aura, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
   }
 
   /* ---------- No GSAP? keep everything visible and bail ---------- */
@@ -276,6 +276,9 @@
     tl.from(heroChars, { yPercent: 115, rotate: 6, duration: 1.4, stagger: 0.04 })
       .from('.hero__meta > *', { y: 20, opacity: 0, duration: 1, stagger: 0.08 }, 0.3)
       .from('.hero__cutout', { yPercent: 14, autoAlpha: 0, duration: 2, clearProps: 'opacity,visibility' }, 0.4)
+      .from('.aura__glow', { scale: 0.3, opacity: 0, duration: 2.2 }, 0.3)
+      .from('.aura__grid', { opacity: 0, duration: 1.6, ease: 'power2.out' }, 0.6)
+      .from('.aura__ring', { scale: 0.6, opacity: 0, duration: 2, stagger: 0.14 }, 0.45)
       .from('.hero .fade-up', { y: 40, opacity: 0, duration: 1.2, stagger: 0.12 }, 0.7)
       .from('.badge', { scale: 0, rotate: -180, duration: 1.4 }, 0.8)
       .from('.nav > *', { y: -30, opacity: 0, duration: 1, stagger: 0.08 }, 0.5);
@@ -449,12 +452,19 @@
   /* ---------- Hero parallax out ---------- */
   gsap.to('.hero__title', { yPercent: -10, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
   gsap.to('.hero__face', { yPercent: 12, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+  // the aura lags behind the photo and opens up as you scroll away
+  gsap.to('.hero__aura', { yPercent: 22, scale: 1.15, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
   if (finePointer) {
     const cutX = gsap.quickTo('.hero__cutout', 'x', { duration: 1.2, ease: 'power3' });
     const cutY = gsap.quickTo('.hero__cutout', 'y', { duration: 1.2, ease: 'power3' });
+    // backdrop drifts the other way: cheap depth
+    const auraX = gsap.quickTo('.hero__aura', 'x', { duration: 1.6, ease: 'power3' });
+    const auraY = gsap.quickTo('.hero__aura', 'y', { duration: 1.6, ease: 'power3' });
     $('.hero').addEventListener('pointermove', (e) => {
-      cutX((e.clientX / innerWidth - 0.5) * -18);
-      cutY((e.clientY / innerHeight - 0.5) * -10);
+      const px = e.clientX / innerWidth - 0.5;
+      const py = e.clientY / innerHeight - 0.5;
+      cutX(px * -18); cutY(py * -10);
+      auraX(px * 22); auraY(py * 14);
     }, { passive: true });
   }
 

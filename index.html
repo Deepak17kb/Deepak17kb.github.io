@@ -56,7 +56,7 @@
 
   <!-- ============ NAV ============ -->
   <header class="nav">
-    <a href="#top" class="nav__logo" data-magnetic aria-label="Back to top">DKB<sup>©</sup></a>
+    <a href="#top" class="nav__logo" data-link data-magnetic aria-label="Deepak, back to top">Deepak<span class="nav__logo-dot">.</span></a>
     <nav class="nav__links" aria-label="Primary">
       <a href="#about" data-link>About</a>
       <a href="#work" data-link>Work</a>
@@ -90,6 +90,14 @@
 
     <!-- ============ HERO ============ -->
     <section class="hero">
+      <!-- animated backdrop behind the photo: soft glow, dot grid, orbiting graph rings (kept clear of the face) -->
+      <div class="hero__aura" aria-hidden="true">
+        <span class="aura__grid"></span>
+        <span class="aura__glow"></span>
+        <span class="aura__ring aura__ring--1"><i class="n n--top n--accent"></i><i class="n n--bl"></i><i class="n n--right"></i></span>
+        <span class="aura__ring aura__ring--2"><i class="n n--right"></i><i class="n n--tl n--accent"></i><i class="n n--bottom"></i></span>
+        <span class="aura__ring aura__ring--3"><i class="n n--bottom n--accent"></i><i class="n n--left"></i></span>
+      </div>
       <!-- the photo sits in front of the name so letters never cover it -->
       <div class="hero__face" aria-hidden="true">
         <img class="hero__cutout" src="assets/deepak-cutout.webp" alt="" width="1087" height="1199" decoding="async" fetchpriority="high" />
@@ -522,6 +530,10 @@
           <li><a href="https://drive.google.com/file/d/1H2KW4a7GMuvLveb_4dYi2V5vE_UxL_Vm/view" target="_blank" rel="noopener"><span class="certs__name">OCI AI Certified Foundations Associate <i>↗</i></span><span class="certs__by mono">Oracle · Jul 2026</span></a></li>
           <li><a href="https://drive.google.com/file/d/1m5cbPkhOXicJNmS_-4x-pxtBqLvorKh-/view" target="_blank" rel="noopener"><span class="certs__name">Oracle Data Platform 2025 Certified Foundations Associate <i>↗</i></span><span class="certs__by mono">Oracle · May 2026</span></a></li>
           <li><a href="https://drive.google.com/file/d/1sECSwq2yuf9iOH-87hoxSIJZ5Vr-TuXT/view" target="_blank" rel="noopener"><span class="certs__name">Building Generative AI Applications Using Amazon Bedrock <i>↗</i></span><span class="certs__by mono">AWS · Feb 2026</span></a></li>
+          <li><a href="https://drive.google.com/file/d/12SxrQJ41pTDDgjmE97rz38NlZOnplPVJ/view" target="_blank" rel="noopener"><span class="certs__name">Building Language Models on AWS <i>↗</i></span><span class="certs__by mono">AWS · Feb 2026</span></a></li>
+          <li><a href="https://drive.google.com/file/d/1Jj8oZYw7DHRZNK2SkQMFGtnVn3oJTvJs/view" target="_blank" rel="noopener"><span class="certs__name">Fundamentals of Analytics on AWS, Parts 1 &amp; 2 <i>↗</i></span><span class="certs__by mono">AWS · Feb 2026</span></a></li>
+          <li><a href="https://drive.google.com/file/d/1g3n_AOmYDE-U2NFRNdhxveslX-vnSDvV/view" target="_blank" rel="noopener"><span class="certs__name">Introduction to Amazon Quick Suite <i>↗</i></span><span class="certs__by mono">AWS · Feb 2026</span></a></li>
+          <li><a href="https://drive.google.com/file/d/1mEiEcZz4Ym2Q79IkOGHcNpzoW5ypd_d1/view" target="_blank" rel="noopener"><span class="certs__name">Hadoop 101 <i>↗</i></span><span class="certs__by mono">IBM · Cognitive Class · May 2026</span></a></li>
           <li><a href="https://drive.google.com/file/d/1wVQHBN7-4-ZWYNY2kHGc06VtJd0AYocT/view" target="_blank" rel="noopener"><span class="certs__name">Full Stack Development with MERN <i>↗</i></span><span class="certs__by mono">Nasscom Foundation · Cisco thingQbator</span></a></li>
           <li><a href="https://drive.google.com/file/d/1Kl8CuCBxVMHsdrNThg1e-Qnf2RZMlTHg/view" target="_blank" rel="noopener"><span class="certs__name">Database Management System, Parts 1 &amp; 2 <i>↗</i></span><span class="certs__by mono">Infosys Springboard · Sep 2026</span></a></li>
         </ul>
@@ -611,7 +623,7 @@
           <div class="term__bar">
             <span class="term__dots" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="term__title">deepak@lpu: ~</span>
-            <span class="term__meta">dkb-sh</span>
+            <span class="term__meta">deepak-sh</span>
           </div>
           <div class="term__out" role="log" aria-live="polite" data-lenis-prevent></div>
           <form class="term__form" autocomplete="off">

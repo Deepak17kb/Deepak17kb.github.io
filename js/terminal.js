@@ -113,11 +113,11 @@
     neofetch: {
       desc: 'system info, but it is me',
       run: () => {
-        const art = String.raw` ____  _  ______
-|  _ \| |/ / __ )
-| | | | ' /|  _ \
-| |_| | . \| |_) |
-|____/|_|\_\____/`.split('\n');
+        const art = String.raw`    _                    _
+ __| |___ ___ _ __  __ _| |__
+/ _${'`'} / -_) -_) '_ \/ _${'`'} | / /
+\__,_\___\___| .__/\__,_|_\_\
+             |_|`.split('\n');
         const info = [
           `${acc('deepak')}@${acc('lpu')}`,
           dim('-----------'),
@@ -131,7 +131,7 @@
           `${acc('Fuel')}    chai, ∞`,
         ];
         if (narrow()) return [...art.map((l) => acc(esc(l))), '', ...info];
-        return Array.from({ length: Math.max(art.length, info.length) }, (_, i) => acc(esc(pad(art[i] || '', 21))) + (info[i] || ''));
+        return Array.from({ length: Math.max(art.length, info.length) }, (_, i) => acc(esc(pad(art[i] || '', 32))) + (info[i] || ''));
       },
     },
     projects: {
@@ -332,7 +332,7 @@
   /* ---------- Boot once it's on screen ---------- */
   const boot = () =>
     print([
-      dim(`DKB shell 1.0 · last login: ${new Date().toDateString()} on your browser`),
+      dim(`deepak-sh 1.0 · last login: ${new Date().toDateString()} on your browser`),
       `Welcome. Type ${cmd('help')} or tap a command below.`,
       '',
     ]);
