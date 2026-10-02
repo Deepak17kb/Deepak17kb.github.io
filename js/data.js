@@ -35,7 +35,7 @@ window.DKB_DATA = {
 
   achievements: [
     { rank: '#1', title: 'Winner, Best Pipeline', event: 'TransOrg AgentIQ Datathon', when: 'Sep 2026' },
-    { rank: '#5', title: 'Algo Arena, pre-finalist', event: '5th on the leaderboard · top 4 made the final' },
+    { rank: 'Top 10', title: 'Algo Arena', event: 'Hackathon' },
     { rank: 'Top 30', title: 'CodeXtreme 4.0', event: 'Java coding contest · LPU & iamneo', when: 'Mar 2026' },
     { rank: 'PMO', title: 'Letter of Appreciation', event: '“Pariksha Pe Charcha”, PMO India', when: 'Jul 2022' },
   ],
@@ -55,16 +55,9 @@ window.DKB_DATA = {
     { name: 'Oracle Agentic AI Certified Foundations Associate', by: 'Oracle', when: 'Sep 2026' },
     { name: 'OCI AI Certified Foundations Associate', by: 'Oracle', when: 'Jul 2026' },
     { name: 'Oracle Data Platform 2025 Certified Foundations Associate', by: 'Oracle', when: 'May 2026' },
-    { name: 'Building Generative AI Apps with Amazon Bedrock', by: 'AWS', when: 'Feb 2026' },
-    { name: 'Building Language Models on AWS', by: 'AWS', when: 'Feb 2026' },
-    { name: 'Fundamentals of Analytics on AWS, Parts 1 & 2', by: 'AWS', when: 'Feb 2026' },
-    { name: 'Introduction to Amazon Quick Suite', by: 'AWS', when: 'Feb 2026' },
-    { name: 'Full Stack Development with MERN & MEAN', by: 'Nasscom Foundation · Cisco thingQbator' },
-    { name: 'Docker & Kubernetes, Chatbot Development, Mobile App Development', by: 'Nasscom Foundation · Cisco thingQbator' },
+    { name: 'Building Generative AI Applications Using Amazon Bedrock', by: 'AWS', when: 'Feb 2026' },
+    { name: 'Full Stack Development with MERN', by: 'Nasscom Foundation · Cisco thingQbator' },
     { name: 'Database Management System, Parts 1 & 2', by: 'Infosys Springboard', when: 'Sep 2026' },
-    { name: 'Programming Using C++', by: 'Infosys Springboard', when: 'Aug 2025' },
-    { name: 'Hadoop 101', by: 'IBM · Cognitive Class', when: 'May 2026' },
-    { name: 'CS250: Python for Data Science', by: 'Saylor Academy', when: 'Feb 2026' },
   ],
 
   skills: {

@@ -125,7 +125,7 @@
           `${acc('CGPA')}    ${esc(D.cgpa)}`,
           `${acc('Shell')}   TypeScript · C++ · Python`,
           `${acc('Wins')}    #1 AgentIQ Datathon`,
-          `        #5 Algo Arena · Top 30 CodeXtreme`,
+          `        Top 10 Algo Arena · Top 30 CodeXtreme`,
           `${acc('Uptime')}  150+ DSA problems and counting`,
           `${acc('Status')}  ${ok('open to internships')}`,
           `${acc('Fuel')}    chai, ∞`,
