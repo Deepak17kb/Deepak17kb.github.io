@@ -125,7 +125,7 @@
           `${acc('CGPA')}    ${esc(D.cgpa)}`,
           `${acc('Shell')}   TypeScript · C++ · Python`,
           `${acc('Wins')}    #1 AgentIQ Datathon`,
-          `        Top 10 Algo Arena · Top 30 CodeXtreme`,
+          `        #5 Algo Arena · Top 30 CodeXtreme`,
           `${acc('Uptime')}  150+ DSA problems and counting`,
           `${acc('Status')}  ${ok('open to internships')}`,
           `${acc('Fuel')}    chai, ∞`,
@@ -172,7 +172,7 @@
     },
     certs: {
       desc: 'certifications',
-      run: () => [acc('Certifications'), ...D.certs.map((c) => `  ${esc(c.name)} ${dim('— ' + esc(c.by) + ', ' + esc(c.when))}`)],
+      run: () => [acc(`Certifications (${D.certs.length})`), ...D.certs.map((c) => `  ${esc(c.name)} ${dim('— ' + esc(c.by) + (c.when ? ', ' + esc(c.when) : ''))}`)],
     },
     contact: { desc: 'how to reach me', run: contact },
     email: {

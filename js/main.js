@@ -449,7 +449,7 @@
 
   /* ---------- Hero parallax out ---------- */
   gsap.to('.hero__title', { yPercent: -10, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-  gsap.to('.hero__portrait', { yPercent: 12, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+  gsap.to('.hero__portrait, .hero__face', { yPercent: 12, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
   if (finePointer) {
     const cutX = gsap.quickTo('.hero__cutout', 'x', { duration: 1.2, ease: 'power3' });
     const cutY = gsap.quickTo('.hero__cutout', 'y', { duration: 1.2, ease: 'power3' });
@@ -563,7 +563,7 @@
   reveal('.row', '.rows');
   reveal('.skills__col', '.skills');
   reveal('.card', '.cards', { y: 120, rotate: 3, stagger: 0.12 });
-  reveal('.certs li', '.certs');
+  reveal('.cert-group', '.certs__groups', { stagger: 0.08 });
   reveal('.lab__lede', '.lab__head');
   reveal('.lab__app', '.lab__app', { y: 90 });
   reveal('.shell__intro > *, .term', '.shell', { stagger: 0.08 });
