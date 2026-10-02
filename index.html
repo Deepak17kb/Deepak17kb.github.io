@@ -133,7 +133,7 @@
       <div class="hero__meta mono">
         <span>(Portfolio — Vol. 01)</span>
         <span class="hide-sm">B.Tech CSE · LPU</span>
-        <span class="hero__status"><i></i>Open to internships</span>
+        <span class="hero__status"><i></i>Open to work</span>
       </div>
 
       <h1 class="hero__title">
@@ -716,7 +716,7 @@
           <form class="form" id="contact-form">
             <label><span class="mono">01 — Your name</span><input type="text" name="name" required placeholder="Ada Lovelace" /></label>
             <label><span class="mono">02 — Your email</span><input type="email" name="email" required placeholder="ada@engine.dev" /></label>
-            <label><span class="mono">03 — What's on your mind?</span><textarea name="message" rows="3" required placeholder="An internship, a project, or just to say hi…"></textarea></label>
+            <label><span class="mono">03 — What's on your mind?</span><textarea name="message" rows="3" required placeholder="A job, an internship, a project, or just to say hi…"></textarea></label>
             <button type="submit" class="btn btn--fill" data-magnetic><span>Send message</span><i>→</i></button>
           </form>
 
@@ -728,17 +728,18 @@
         </div>
 
         <aside class="coffee" data-tilt>
-          <span class="coffee__kicker mono">Support the dev</span>
+          <span class="coffee__kicker mono">Coffee, two ways</span>
           <div class="coffee__cup" aria-hidden="true">
             <div class="steam"><span></span><span></span><span></span></div>
             <div class="cup"><div class="cup__coffee"></div><div class="cup__handle"></div></div>
             <div class="saucer"></div>
           </div>
           <h3>Fuel my next <em class="serif">commit</em></h3>
-          <p>Liked something here? One coffee equals one less bug. <em>Probably.</em></p>
-          <a href="https://buymeacoffee.com/deepak17kb" target="_blank" rel="noopener" class="btn btn--coffee" data-magnetic>
-            <span>Buy me a coffee</span><i>☕</i>
-          </a>
+          <p>Liked something here? One coffee equals one less bug. <em>Probably.</em> Or let's have one together and talk jobs, internships or a project.</p>
+          <div class="coffee__actions">
+            <button type="button" class="btn btn--coffee coffee__buy" data-coffee-buy data-magnetic><span>Buy me a coffee</span><i>☕</i></button>
+            <a href="mailto:deepak7521b@gmail.com?subject=Virtual%20coffee%20chat" class="btn btn--chat" data-coffee-chat data-magnetic><span>Virtual coffee chat</span><i>→</i></a>
+          </div>
           <span class="coffee__fine mono">while(coffee) { code(); }</span>
         </aside>
       </div>
@@ -749,7 +750,7 @@
   <!-- ============ FOOTER ============ -->
   <footer class="footer">
     <div class="footer__top">
-      <span class="mono">Designed &amp; built by Deepak, with too much chai.</span>
+      <span class="mono">Designed &amp; built by Deepak, with too much coffee.</span>
       <a href="#top" class="link-arrow" data-link>Back to top <i>↑</i></a>
     </div>
     <!-- real public pushes from the GitHub API; hidden if it can't be reached -->
@@ -767,6 +768,30 @@
       <span>Phagwara, IN · <span data-clock>--:--</span></span>
     </div>
   </footer>
+
+  <!-- ============ COFFEE (UPI) ============ -->
+  <div class="cafe" hidden>
+    <div class="cafe__backdrop" data-cafe-close></div>
+    <div class="cafe__panel" role="dialog" aria-modal="true" aria-labelledby="cafe-title" tabindex="-1">
+      <button type="button" class="cafe__x" data-cafe-close aria-label="Close">✕</button>
+      <p class="mono cafe__kicker">Buy me a coffee · UPI</p>
+      <h2 id="cafe-title" class="cafe__title">Pick a <em class="serif">size</em></h2>
+      <div class="cafe__sizes" role="group" aria-label="Coffee size"></div>
+      <div class="cafe__pay">
+        <figure class="cafe__qrwrap">
+          <div class="cafe__qr"></div>
+          <figcaption class="mono">Scan with any UPI app · <b data-upi-amount></b></figcaption>
+        </figure>
+        <div class="cafe__side">
+          <a class="btn btn--fill cafe__app" data-upi-pay href="#"><span>Pay in a UPI app</span><i>↗</i></a>
+          <p class="cafe__note">On a phone, this opens GPay, PhonePe, Paytm or your bank's app with everything filled in.</p>
+          <button type="button" class="cafe__id mono" data-upi-copy><span data-upi-id></span><i>copy</i></button>
+          <p class="cafe__fine mono">Goes straight to Deepak's bank account. No sign-up, no fees.</p>
+        </div>
+      </div>
+      <p class="cafe__alt">Rather talk than tip? <a data-coffee-chat href="mailto:deepak7521b@gmail.com">Grab a virtual coffee chat instead →</a></p>
+    </div>
+  </div>
 
   <!-- ============ TL;DR (also the print layout) ============ -->
   <div class="tldr" hidden>
@@ -805,6 +830,7 @@
   <script src="vendor/lenis.min.js" defer></script>
   <script src="js/data.js" defer></script>
   <script src="js/main.js" defer></script>
+  <script src="js/coffee.js" defer></script>
   <script src="js/hero-graph.js" defer></script>
   <script src="js/lab.js" defer></script>
   <script src="js/terminal.js" defer></script>

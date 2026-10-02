@@ -39,6 +39,7 @@
         h('p.tldr__kicker.mono', 'TL;DR · 30-second version'),
         h('h2.tldr__name', D.name),
         h('p.tldr__role', `${edu.what} · ${edu.where.split(',')[0]} · ${edu.when} · ${edu.score}`),
+        h('p.tldr__status.mono', [h('i', ''), D.status]),
       ]),
       h('ul.tldr__contact.mono', [
         h('li', a('mailto:' + D.email, D.email)),

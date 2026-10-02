@@ -74,7 +74,7 @@
     acc(esc(D.name)),
     `CSE undergrad at Lovely Professional University · CGPA ${esc(D.cgpa)}`,
     'From Bhubaneswar, Odisha. Builds AI agents, full-stack apps and data stories.',
-    `Thinks in graphs. Status: ${ok('open to internships')}`,
+    `Thinks in graphs. Status: ${ok('open to work')} ${dim('(jobs & internships)')}`,
   ];
   const trophies = () => [
     acc('Achievements'),
@@ -127,8 +127,8 @@
           `${acc('Wins')}    #1 AgentIQ Datathon`,
           `        Top 10 Algo Arena · Top 30 CodeXtreme`,
           `${acc('Uptime')}  150+ DSA problems and counting`,
-          `${acc('Status')}  ${ok('open to internships')}`,
-          `${acc('Fuel')}    chai, ∞`,
+          `${acc('Status')}  ${ok('open to work: jobs & internships')}`,
+          `${acc('Fuel')}    coffee, ∞`,
         ];
         if (narrow()) return [...art.map((l) => acc(esc(l))), '', ...info];
         return Array.from({ length: Math.max(art.length, info.length) }, (_, i) => acc(esc(pad(art[i] || '', 32))) + (info[i] || ''));
@@ -203,7 +203,24 @@
     },
     coffee: {
       desc: 'fuel the next commit',
-      run: () => { api.coffeeRain && api.coffeeRain(); return ['☕ ' + link(D.links.coffee, 'buymeacoffee.com/deepak17kb')]; },
+      run: () => {
+        api.coffeeRain && api.coffeeRain();
+        const c = window.DKB_COFFEE;
+        const lines = [acc('☕ coffee, two ways')];
+        if (c && c.upiReady) lines.push(`  buy one   ${cmd('buy coffee')} ${dim('(UPI QR, any UPI app)')}`);
+        lines.push(`  chat      ${link(c ? c.chatHref() : 'mailto:' + D.email, 'virtual coffee chat')} ${dim('(jobs, internships, projects)')}`);
+        return lines;
+      },
+    },
+    buy: {
+      hidden: true,
+      run: (args) => {
+        const c = window.DKB_COFFEE;
+        if (args[0] !== 'coffee') return ['usage: ' + cmd('buy coffee')];
+        if (!c || !c.upiReady) return [dim('UPI is not set up yet. ') + link(c ? c.chatHref() : 'mailto:' + D.email, 'Grab a virtual coffee chat instead →')];
+        c.open();
+        return [ok('opening the coffee counter…')];
+      },
     },
     date: {
       desc: 'what time is it in Punjab',

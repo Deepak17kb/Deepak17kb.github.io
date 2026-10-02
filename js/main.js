@@ -165,12 +165,12 @@
     pos = k === code[pos] ? pos + 1 : k === code[0] ? 1 : 0;
     if (pos === code.length) {
       pos = 0;
-      toast('Chai mode unlocked ☕ Caffeine levels: critical');
+      toast('Coffee mode unlocked ☕ Caffeine levels: critical');
       coffeeRain();
     }
   });
   function coffeeRain() {
-    const icons = ['☕', '🫖', '💻', '✦', '☕'];
+    const icons = ['☕', '☕', '💻', '✦', '☕'];
     for (let i = 0; i < 40; i++) {
       const s = document.createElement('span');
       s.className = 'rain';
@@ -305,7 +305,7 @@
     let seen = false;
     try { seen = sessionStorage.getItem('dkb-seen') === '1'; sessionStorage.setItem('dkb-seen', '1'); } catch (e) {}
     const counter = { v: 0 };
-    const words = ['Compiling ideas', 'Running Dijkstra', 'Brewing chai', 'Ready'];
+    const words = ['Compiling ideas', 'Running Dijkstra', 'Brewing coffee', 'Ready'];
     const numEl = $('.preloader__num');
     const wordEl = $('.preloader__word');
     let lastWord = 0;

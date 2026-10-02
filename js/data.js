@@ -5,6 +5,7 @@
 window.DKB_DATA = {
   name: 'Deepak Kumar Behera',
   site: 'https://deepak17kb.github.io/',
+  status: 'Open to work: jobs & internships',
   oneLiner: 'A developer who thinks in graphs, ships with TypeScript and tells stories with data.',
   email: 'deepak7521b@gmail.com',
   cv: 'assets/Deepak-Kumar-Behera-CV.pdf',
@@ -12,7 +13,18 @@ window.DKB_DATA = {
   links: {
     github: 'https://github.com/Deepak17kb',
     linkedin: 'https://linkedin.com/in/deepak-kumarbehera',
-    coffee: 'https://buymeacoffee.com/deepak17kb',
+  },
+
+  // Coffee, two ways: pay by UPI, or ask for a virtual coffee chat.
+  // The UPI button and QR stay hidden until `upi` is set.
+  coffee: {
+    upi: null, // TODO(deepak): your UPI ID, e.g. 'name@okaxis'
+    payee: 'Deepak Kumar Behera',
+    sizes: [
+      { name: 'Espresso', amount: 49 },
+      { name: 'Cappuccino', amount: 99 },
+      { name: 'Cold brew', amount: 199 },
+    ],
   },
 
   sections: [

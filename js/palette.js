@@ -46,11 +46,14 @@
     { group: 'Actions', label: 'Print a one-page résumé', hint: 'PDF', keys: 'print pdf resume cv save', run: () => window.DKB_TLDR && window.DKB_TLDR.print() },
     { group: 'Actions', label: 'Latest pushes, live from GitHub', hint: 'git log', keys: 'git log commits activity github live', run: () => runInTerminal('git log') },
     { group: 'Actions', label: 'Play snake in the terminal', hint: 'game', keys: 'snake game play fun', run: () => runInTerminal('snake') },
-    { group: 'Actions', label: 'Make it rain chai', hint: '☕', keys: 'coffee easter egg konami', run: () => api.coffeeRain() },
+    { group: 'Actions', label: 'Make it rain coffee', hint: '☕', keys: 'coffee easter egg konami', run: () => api.coffeeRain() },
     ...(D.projects || []).map((p) => ({ group: 'Projects', label: p.name, hint: p.demo ? 'live demo ↗' : 'GitHub ↗', keys: p.what, run: () => openUrl(p.demo || p.code) })),
     { group: 'Elsewhere', label: 'GitHub', hint: '↗', keys: 'code repos', run: () => openUrl(D.links.github) },
     { group: 'Elsewhere', label: 'LinkedIn', hint: '↗', keys: 'profile', run: () => openUrl(D.links.linkedin) },
-    { group: 'Elsewhere', label: 'Buy me a coffee', hint: '↗', keys: 'support donate', run: () => openUrl(D.links.coffee) },
+    ...(window.DKB_COFFEE && window.DKB_COFFEE.upiReady
+      ? [{ group: 'Elsewhere', label: 'Buy me a coffee (UPI)', hint: 'QR ☕', keys: 'support donate tip upi pay', run: () => window.DKB_COFFEE.open() }]
+      : []),
+    { group: 'Elsewhere', label: 'Virtual coffee chat', hint: 'email', keys: 'coffee chat meet talk job internship hire', run: () => { window.location.href = window.DKB_COFFEE ? window.DKB_COFFEE.chatHref() : 'mailto:' + D.email; } },
   ];
 
   // prefix > word start > substring (label or keywords) > loose subsequence (label only)

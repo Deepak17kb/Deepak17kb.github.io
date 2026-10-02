@@ -1019,6 +1019,9 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 .tldr__kicker { color: var(--accent-text); font-size: 11px; }
 .tldr__name { font-family: var(--f-display); font-weight: 400; text-transform: uppercase; font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: .95; margin: 6px 0 4px; }
 .tldr__role { color: var(--muted); font-size: 14px; }
+.tldr__status { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--ink); }
+.tldr__status i { width: 8px; height: 8px; border-radius: 50%; background: #2BB673; }
+@media print { .tldr__status { font-size: 7.5pt; margin-top: 3px; } .tldr__status i { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
 .tldr__contact { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 10px; font-size: 11px; text-transform: none; }
 .tldr__contact a { border-bottom: 1px solid var(--line); }
 .tldr__contact a:hover { color: var(--accent-text); }
@@ -1135,6 +1138,66 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 .btn--coffee::before { background: var(--accent); }
 .btn--coffee:hover { color: #fff; border-color: var(--accent); }
 .btn--coffee:hover i { transform: rotate(-12deg) scale(1.2); }
+.coffee__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.coffee__actions .btn--coffee { margin-top: 0; }
+/* no UPI ID yet: the buy button stays hidden and the chat leads */
+html:not(.has-upi) .coffee__buy { display: none; }
+.btn--chat { color: var(--paper); border-color: color-mix(in srgb, var(--paper) 45%, transparent); }
+.btn--chat::before { background: var(--paper); }
+.btn--chat:hover { color: var(--ink); border-color: var(--paper); }
+html:not(.has-upi) .btn--chat { background: #FFDD00; color: #111; border-color: #FFDD00; }
+html:not(.has-upi) .btn--chat::before { background: var(--accent); }
+html:not(.has-upi) .btn--chat:hover { color: #fff; border-color: var(--accent); }
+
+/* ---------- Coffee dialog (UPI) ---------- */
+.cafe { position: fixed; inset: 0; z-index: 986; display: grid; place-items: center; padding: 16px; }
+.cafe[hidden] { display: none; }
+.cafe__backdrop { position: absolute; inset: 0; background: rgba(10, 9, 8, .55); opacity: 0; transition: opacity .35s var(--ease-out); }
+.cafe__panel {
+  position: relative; width: min(640px, 100%); max-height: 94vh; overflow-y: auto;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 16px;
+  padding: clamp(22px, 3.4vw, 36px); box-shadow: 0 60px 120px -40px rgba(0, 0, 0, .6);
+  opacity: 0; transform: translateY(24px) scale(.985); transition: opacity .35s var(--ease-out), transform .55s var(--ease-out);
+}
+.cafe__panel:focus { outline: none; }
+.cafe.is-open .cafe__backdrop { opacity: 1; }
+.cafe.is-open .cafe__panel { opacity: 1; transform: none; }
+.cafe__x { position: absolute; top: 14px; right: 14px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; }
+.cafe__x:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.cafe__kicker { color: var(--accent-text); font-size: 11px; }
+.cafe__title { font-family: var(--f-display); font-weight: 400; text-transform: uppercase; font-size: clamp(2.2rem, 5vw, 3.2rem); line-height: .95; margin: 8px 0 18px; }
+.cafe__title .serif { color: var(--accent); }
+.cafe__sizes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.cafe__sizes button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 64px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--card); text-align: left; transition: border-color .3s, box-shadow .3s;
+}
+.cafe__sizes button span { font-size: 13px; color: var(--muted); }
+.cafe__sizes button b { font-family: var(--f-display); font-weight: 400; font-size: 1.4rem; line-height: 1; }
+.cafe__sizes button:hover { border-color: var(--ink); }
+.cafe__sizes button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cafe__pay { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: center; margin-top: 20px; }
+.cafe__qrwrap { margin: 0; }
+.cafe__qr { aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+.cafe__qr svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; }
+.cafe__qrwrap figcaption { margin-top: 8px; font-size: 10px; color: var(--muted); }
+.cafe__qrwrap figcaption b { color: var(--ink); font-weight: 500; }
+.cafe__side { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.cafe__note { color: var(--muted); font-size: 14px; }
+.cafe__id { display: inline-flex; gap: 12px; align-items: center; min-height: 44px; padding: 8px 14px; border: 1px dashed var(--line); border-radius: 100px; font-size: 12px; text-transform: none; }
+.cafe__id i { font-style: normal; color: var(--accent-text); text-transform: uppercase; font-size: 10px; }
+.cafe__id:hover { border-color: var(--ink); }
+.cafe__fine { color: var(--muted); font-size: 10px; text-transform: none; }
+.cafe__alt { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.cafe__alt a { color: var(--ink); border-bottom: 1px solid currentColor; }
+.cafe__alt a:hover { color: var(--accent-text); }
+@media (max-width: 560px) {
+  .cafe { padding: 0; place-items: end center; }
+  .cafe__panel { border-radius: 16px 16px 0 0; }
+  .cafe__sizes { grid-template-columns: 1fr 1fr; }
+  .cafe__pay { grid-template-columns: 1fr; }
+  .cafe__qrwrap { width: min(220px, 70%); justify-self: center; }
+}
 
 .coffee__cup { position: relative; width: 120px; height: 130px; margin: 6px 0 4px; transform: translateZ(40px); }
 .cup { position: absolute; bottom: 14px; left: 10px; width: 78px; height: 70px; background: var(--paper); border-radius: 4px 4px 30px 30px; overflow: hidden; }
