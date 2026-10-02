@@ -68,6 +68,8 @@
     return (D.projects || []).find((p) => p.key === q || p.name.toLowerCase().includes(q));
   };
   const narrow = () => out.clientWidth < 520;
+  const touch = window.matchMedia('(pointer: coarse)').matches;
+  const focusPrompt = () => { if (!touch) input.focus({ preventScroll: true }); };
 
   /* ---------- Commands ---------- */
   const whoami = () => [
@@ -246,7 +248,7 @@
       },
     },
     history: { desc: 'what you typed', run: () => (history.length ? history.map((h, i) => `  ${dim(String(i + 1).padStart(3))}  ${esc(h)}`) : [dim('nothing yet')]) },
-    clear: { desc: 'wipe the screen', run: () => { out.textContent = ''; return []; } },
+    clear: { desc: 'wipe the screen', run: () => { game && game.stop(); out.textContent = ''; return []; } },
     tldr: {
       desc: 'the 30-second version (printable)',
       run: () => { window.DKB_TLDR && window.DKB_TLDR.open(); return [ok('opening the TL;DR… (Ctrl/⌘ P prints it)')]; },
@@ -330,6 +332,12 @@
     const cells = Array.from({ length: W * H }, () => board.appendChild(document.createElement('i')));
     const status = document.createElement('div');
     status.className = 't-game__status';
+    const score = status.appendChild(document.createElement('span'));
+    // a visible way out: touch screens have no Q key
+    const quit = status.appendChild(document.createElement('button'));
+    quit.type = 'button';
+    quit.className = 't-game__quit';
+    quit.textContent = 'quit';
     pre.append(board, status);
     const s = { body: [[4, 5], [3, 5], [2, 5]], dir: [1, 0], next: [1, 0], food: null, score: 0, speed: 150, timer: 0, paused: false };
     const free = () => {
@@ -343,7 +351,7 @@
       cells.forEach((c) => (c.className = ''));
       s.body.forEach(([x, y], i) => (cells[y * W + x].className = i ? 'g-s' : 'g-h'));
       cells[s.food[1] * W + s.food[0]].className = 'g-f';
-      status.textContent = `score ${s.score}   best ${Math.max(best(), s.score)}${s.paused ? '   ‖ paused' : ''}`;
+      score.textContent = `score ${s.score} · best ${Math.max(best(), s.score)}${s.paused ? ' · paused' : ''}`;
     };
     const io = new IntersectionObserver(([e]) => {
       if (!game) return;
@@ -355,6 +363,7 @@
     const end = () => {
       clearTimeout(s.timer);
       io.disconnect();
+      quit.remove(); // a finished board must not be able to end a later game
       const prev = best();
       if (s.score > prev) { try { localStorage.setItem('dkb-snake', String(s.score)); } catch (e) {} }
       game = null;
@@ -378,6 +387,7 @@
       render();
       s.timer = setTimeout(step, s.speed);
     }
+    quit.addEventListener('click', (e) => { e.stopPropagation(); if (game) end(); });
     const turn = (dx, dy) => {
       if (dx === -s.dir[0] && dy === -s.dir[1]) return; // no reversing into yourself
       s.next = [dx, dy];
@@ -392,6 +402,12 @@
       t0 = null;
     });
     game = {
+      // end without a scoreboard (the screen is being cleared)
+      stop() {
+        clearTimeout(s.timer);
+        io.disconnect();
+        game = null;
+      },
       key(e) {
         const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
         if (k === 'q' || k === 'Escape') { e.preventDefault(); end(); return true; }
@@ -410,7 +426,7 @@
         return true;
       },
     };
-    print([acc('snake.exe') + dim('  eat the bugs ◆ · arrows / WASD or swipe · space pauses · q quits')]).then(() => {
+    print([acc('snake.exe') + dim(touch ? '  eat the green bugs · swipe on the board to steer' : '  eat the green bugs · arrows / WASD to steer · space pauses · q quits')]).then(() => {
       if (!game) return;
       out.appendChild(pre);
       render();
@@ -418,7 +434,7 @@
       io.observe(term);
       s.timer = setTimeout(step, 450);
     });
-    input.focus({ preventScroll: true });
+    focusPrompt();
     return [];
   }
 
@@ -494,6 +510,7 @@
       input.value = history[hIdx] || '';
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
+      game && game.stop(); // don't leave an invisible game eating the W/A/S/D keys
       out.textContent = '';
     } else if (e.key === 'c' && e.ctrlKey && input.selectionStart === input.selectionEnd) {
       // Ctrl+C with nothing selected interrupts, like a real shell
@@ -507,7 +524,7 @@
     const b = e.target.closest('[data-cmd]');
     if (b) {
       execute(b.dataset.cmd);
-      input.focus({ preventScroll: true });
+      focusPrompt();
       return;
     }
     // Click on empty terminal space focuses the prompt (unless selecting text or following a link)
@@ -515,7 +532,7 @@
   });
 
   // the command palette can run shell commands (snake, git log…)
-  window.DKB_TERM = { run: (c) => execute(c) };
+  window.DKB_TERM = { run: (c) => execute(c), focus: focusPrompt };
 
   /* ---------- Boot once it's on screen ---------- */
   const boot = () =>

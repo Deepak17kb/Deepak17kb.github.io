@@ -131,7 +131,10 @@
     a.addEventListener('click', (e) => {
       const id = a.getAttribute('href');
       toggleMenu(false);
-      if (scrollToTarget(id)) e.preventDefault();
+      if (!scrollToTarget(id)) return;
+      e.preventDefault();
+      // "Skip to content" should move keyboard focus, not just the viewport
+      if (a.classList.contains('skip-link')) { const t = $(id); t && t.focus({ preventScroll: true }); }
     })
   );
 
@@ -146,7 +149,12 @@
   };
   const mailtoUrl = (subject = '', body = '') =>
     `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  const compose = (subject, body) => window.open(gmailUrl(subject, body), '_blank', 'noopener');
+  const compose = (subject, body) => {
+    const url = gmailUrl(subject, body);
+    const w = window.open(url, '_blank');
+    if (w) { try { w.opener = null; } catch (e) {} }
+    else window.location.href = url; // pop-up blocked: open the draft in this tab instead of losing it
+  };
 
   /* ---------- Copy email ---------- */
   const copyEmail = async () => {
@@ -590,6 +598,24 @@
       },
     });
 
+    // Keyboard focus on a link in an off-screen panel: the browser tries to reveal it by scrolling the
+    // clipped pin sideways, which breaks the layout. Undo that and scroll the page to that panel instead.
+    const pin = $('.work__pin');
+    const st = horiz.scrollTrigger;
+    const keepPinStill = () => { if (pin.scrollLeft) pin.scrollLeft = 0; };
+    const revealFocused = (e) => {
+      keepPinStill();
+      const panel = e.target.closest('.panel');
+      if (!panel || !e.target.matches(':focus-visible')) return; // mouse clicks don't need the page to move
+      const want = gsap.utils.clamp(0, distance, panel.offsetLeft - (window.innerWidth - panel.offsetWidth) / 2);
+      const y = st.start + want; // the pin scrolls 1px sideways per 1px of page scroll
+      if (Math.abs(window.scrollY - y) < 8) return;
+      if (lenis) lenis.scrollTo(y, { duration: 0.8 });
+      else window.scrollTo(0, y);
+    };
+    pin.addEventListener('scroll', keepPinStill);
+    workTrack.addEventListener('focusin', revealFocused);
+
     panels.forEach((panel) => {
       gsap.fromTo($('.project__visual', panel), { xPercent: 18, rotate: 4 }, {
         xPercent: -8, rotate: -2, ease: 'none',
@@ -600,6 +626,11 @@
         scrollTrigger: { trigger: panel, containerAnimation: horiz, start: 'left 65%' },
       });
     });
+  
+    return () => {
+      pin.removeEventListener('scroll', keepPinStill);
+      workTrack.removeEventListener('focusin', revealFocused);
+    };
   });
   mm.add('(max-width: 860px)', () => {
     $$('.project').forEach((panel) => {

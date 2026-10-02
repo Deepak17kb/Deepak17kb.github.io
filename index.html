@@ -168,12 +168,13 @@
           <a href="assets/Deepak-Kumar-Behera-CV.pdf" class="btn" download data-magnetic><span>Download CV</span><i>↓</i></a>
           <button type="button" class="hero__tldr mono" data-tldr-open>Short on time? <span>The 30-second TL;DR</span> <i aria-hidden="true">→</i></button>
         </div>
-        <a href="#about" class="badge" data-link aria-label="Scroll to explore">
+        <a href="#about" class="badge" data-link>
+          <span class="sr-only">Scroll to explore</span>
           <svg viewBox="0 0 200 200" class="badge__text" aria-hidden="true">
             <defs><path id="circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" /></defs>
             <text><textPath href="#circle">SCROLL TO EXPLORE • OPEN TO WORK • SCROLL TO EXPLORE • OPEN TO WORK •</textPath></text>
           </svg>
-          <span class="badge__arrow">↓</span>
+          <span class="badge__arrow" aria-hidden="true">↓</span>
         </a>
       </div>
     </section>
@@ -186,7 +187,7 @@
     </div>
 
     <!-- ============ ABOUT ============ -->
-    <section class="about section" id="about">
+    <section class="about section" id="about" tabindex="-1">
       <div class="section__label mono"><span>(01)</span> About</div>
       <p class="about__manifesto reveal-words">
         I'm Deepak, a CSE undergrad from Odisha who likes the moment a messy problem snaps into a clean structure. Sometimes that's a graph that exposes a fraud ring, sometimes a router that steers a truck around a landslide, and sometimes a Monte Carlo engine that tells you whether your goals will make it.

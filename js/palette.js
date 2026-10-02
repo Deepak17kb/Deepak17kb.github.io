@@ -25,7 +25,7 @@
   const go = (id, opts) => api.scrollTo && api.scrollTo(id, opts);
   const runInTerminal = (c) => {
       go('#terminal', { offset: -80 });
-      setTimeout(() => { window.DKB_TERM && window.DKB_TERM.run(c); document.querySelector('.term__input')?.focus({ preventScroll: true }); }, 1100);
+      setTimeout(() => { if (window.DKB_TERM) { window.DKB_TERM.run(c); window.DKB_TERM.focus(); } }, 1100);
     };
 
   const items = [
@@ -38,7 +38,7 @@
       group: 'Actions', label: 'Open the terminal', hint: 'shell', keys: 'cli console command',
       run: () => {
         go('#terminal', { offset: -80 });
-        setTimeout(() => document.querySelector('.term__input')?.focus({ preventScroll: true }), 1200);
+        setTimeout(() => window.DKB_TERM && window.DKB_TERM.focus(), 1200);
       },
     },
     { group: 'Actions', label: 'Generate a maze in the Path Lab', hint: 'A* · Dijkstra', keys: 'graph lab pathfinding', run: () => { go('#lab'); document.querySelector('[data-lab="maze"]')?.click(); } },
