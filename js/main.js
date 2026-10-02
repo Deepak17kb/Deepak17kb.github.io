@@ -532,7 +532,7 @@
   // Pipeline: each stage lights up and the arrow to the next one draws, once
   const pipe = $$('.pipeline li');
   if (pipe.length) {
-    gsap.set(pipe, { opacity: 0.3 });
+    gsap.set(pipe, { opacity: 0.62 }); // dim but still 4.5:1 before it draws in
     gsap.set(pipe.slice(1), { '--draw': 0 });
     const tl = gsap.timeline({ scrollTrigger: { trigger: '.pipeline', start: 'top 88%', once: true } });
     pipe.forEach((li, i) => {
