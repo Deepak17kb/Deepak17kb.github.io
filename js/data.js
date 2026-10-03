@@ -6,7 +6,7 @@ window.DKB_DATA = {
   name: 'Deepak Kumar Behera',
   site: 'https://deepak17kb.github.io/',
   status: 'Open to work: jobs & internships',
-  oneLiner: 'A developer who thinks in graphs, ships with TypeScript and tells stories with data.',
+  oneLiner: 'I make messy data make sense. Python, SQL and Power BI to find the truth, TypeScript to ship it.',
   email: 'deepak7521b@gmail.com',
   cv: 'assets/Deepak-Kumar-Behera-CV.pdf',
   cgpa: '8.04',

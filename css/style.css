@@ -498,11 +498,15 @@ html:not(.js) .preloader { display: none; }
   letter-spacing: -.01em; padding-left: .08em;
 }
 .hero__lede { display: flex; flex-direction: column; gap: 8px; }
-.hero__role { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
-.hero__role .mono { color: var(--muted); }
+/* one bold line: plain lead-in, then the rotating ending in the accent serif */
+.hero__role {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 .3em;
+  font-size: clamp(1.5rem, 2.25vw, 2.3rem); font-weight: 500;
+  line-height: 1.15; letter-spacing: -.025em; color: var(--ink);
+}
 .rotator {
   display: grid; overflow: hidden;
-  font-family: var(--f-serif); font-style: italic; font-size: clamp(1.4rem, 2vw, 2.2rem);
+  font-family: var(--f-serif); font-style: italic; font-size: 1.16em; font-weight: 400;
   line-height: 1.15; height: 1.15em; color: var(--accent); letter-spacing: 0;
 }
 .rotator__word { grid-area: 1 / 1; white-space: nowrap; }
