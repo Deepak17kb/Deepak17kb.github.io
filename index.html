@@ -80,6 +80,15 @@
   <!-- ============ OVERLAYS ============ -->
   <div class="grain" aria-hidden="true"></div>
   <div class="progress" aria-hidden="true"><span></span></div>
+  <!-- section index on the right edge: shows up after the hero, so it never sits near the photo. A mouse shortcut that mirrors the nav, so it stays out of the tab order -->
+  <div class="rail mono" aria-hidden="true">
+    <a href="#about" data-link tabindex="-1"><span class="rail__label">About</span><span class="rail__num">01</span></a>
+    <a href="#work" data-link tabindex="-1"><span class="rail__label">Work</span><span class="rail__num">02</span></a>
+    <a href="#journey" data-link tabindex="-1"><span class="rail__label">Journey</span><span class="rail__num">03</span></a>
+    <a href="#trophies" data-link tabindex="-1"><span class="rail__label">Trophies</span><span class="rail__num">04</span></a>
+    <a href="#lab" data-link tabindex="-1"><span class="rail__label">Lab</span><span class="rail__num">05</span></a>
+    <a href="#contact" data-link tabindex="-1"><span class="rail__label">Contact</span><span class="rail__num">06</span></a>
+  </div>
   <div class="cursor is-hidden" aria-hidden="true"><div class="cursor__dot"></div><div class="cursor__ring"><span class="cursor__label"></span></div></div>
 
   <!-- ============ NAV ============ -->

@@ -412,6 +412,8 @@
   const navWrap = $('.nav__links');
   const navLinks = $$('a', navWrap);
   const sectionIds = navLinks.map((a) => a.getAttribute('href'));
+  const rail = $('.rail');
+  const railLinks = rail ? $$('a', rail) : [];
   const setActive = (id) => {
     navLinks.forEach((a) => {
       const on = a.getAttribute('href') === id;
@@ -419,21 +421,29 @@
       on ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
     });
     navWrap.classList.toggle('has-active', !!id);
+    // the rail only shows between the hero and the footer
+    railLinks.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === id));
+    rail && rail.classList.toggle('is-on', !!id);
   };
+  // A section is current from the moment its top crosses 55% of the screen until the next one's does.
+  // Only start lines are used: Work is pinned, so a range ending at Journey would be measured without
+  // its sideways scroll, and a fast jump could skip it. onEnter / onLeaveBack still fire when jumping past.
   sectionIds.forEach((id, i) => {
     const sec = $(id);
     if (!sec) return;
-    const next = sectionIds[i + 1] ? $(sectionIds[i + 1]) : $('.footer');
     ScrollTrigger.create({
       trigger: sec,
       start: 'top 55%',
-      endTrigger: next,
-      end: 'top 55%',
-      onToggle: (self) => {
-        if (self.isActive) setActive(id);
-        else if (i === 0 && self.direction === -1) setActive(null);
-      },
+      onEnter: () => setActive(id),
+      onLeaveBack: () => setActive(i ? sectionIds[i - 1] : null),
     });
+  });
+  // into the footer: the rail steps aside; back up into Contact: it returns
+  ScrollTrigger.create({
+    trigger: '.footer',
+    start: 'top 55%',
+    onEnter: () => rail && rail.classList.remove('is-on'),
+    onLeaveBack: () => setActive(sectionIds[sectionIds.length - 1]),
   });
 
   /* ---------- Marquee (velocity- and direction-reactive) ---------- */

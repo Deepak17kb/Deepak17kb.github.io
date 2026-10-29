@@ -353,6 +353,25 @@ html:not(.js) .preloader { display: none; }
 .progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 950; pointer-events: none; }
 .progress span { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0); }
 
+/* section index: numbers + ticks in the right gutter; names only on hover so they never cover content */
+.rail {
+  position: fixed; right: 8px; top: 50%; z-index: 780; transform: translateY(-50%);
+  display: none; flex-direction: column; align-items: flex-end; gap: 4px;
+  font-size: 10px; opacity: 0; visibility: hidden; transition: opacity .5s var(--ease-out), visibility .5s;
+}
+.rail.is-on { opacity: 1; visibility: visible; }
+.rail a { display: flex; align-items: center; gap: 6px; padding: 4px 0; color: var(--muted); transition: color .3s; }
+.rail a::after { content: ""; width: 8px; height: 1px; background: currentColor; opacity: .5; transition: width .4s var(--ease), opacity .3s; }
+.rail__num { font-variant-numeric: tabular-nums; }
+.rail__label { opacity: 0; transform: translateX(6px); transition: opacity .3s, transform .4s var(--ease); white-space: nowrap; }
+.rail a.is-active { color: var(--accent-text); }
+.rail a.is-active::after { width: 16px; opacity: 1; }
+.rail:hover a::after { opacity: 1; }
+.rail:hover .rail__label { opacity: 1; transform: none; }
+.rail a:hover { color: var(--ink); }
+@media (min-width: 1180px) { .js .rail { display: flex; } }
+.menu-open .rail { opacity: 0; visibility: hidden; }
+
 .cursor { position: fixed; top: 0; left: 0; z-index: 999; pointer-events: none; mix-blend-mode: difference; transition: opacity .3s; }
 .cursor__dot, .cursor__ring { position: fixed; top: 0; left: 0; border-radius: 50%; }
 .cursor__dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: #fff; }
