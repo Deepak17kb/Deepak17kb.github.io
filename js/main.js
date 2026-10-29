@@ -320,26 +320,51 @@
     loading = true;
     document.body.classList.add('is-loading');
     lenis && lenis.stop();
-    // Full count-up on the first visit, a quick one on reloads in the same session
+    // The full round of greetings on the first visit, a quick hello on reloads in the same session
     let seen = false;
     try { seen = sessionStorage.getItem('dkb-seen') === '1'; sessionStorage.setItem('dkb-seen', '1'); } catch (e) {}
     const counter = { v: 0 };
     const words = ['Compiling ideas', 'Running Dijkstra', 'Brewing coffee', 'Ready'];
+    // home first (Odisha), then where I study (Punjab), then further out
+    const hellos = [
+      ['Hello', 'en', 'English'],
+      ['ନମସ୍କାର', 'or', 'Odia'],
+      ['नमस्ते', 'hi', 'Hindi'],
+      ['ਸਤ ਸ੍ਰੀ ਅਕਾਲ', 'pa', 'Punjabi'],
+      ['வணக்கம்', 'ta', 'Tamil'],
+      ['Hola', 'es', 'Spanish'],
+      ['Bonjour', 'fr', 'French'],
+      ['こんにちは', 'ja', 'Japanese'],
+    ];
     const numEl = $('.preloader__num');
     const wordEl = $('.preloader__word');
+    const barEl = $('.preloader__bar i');
+    const greetEl = $('.preloader__greet');
+    const langEl = $('.preloader__lang');
+    const total = seen ? 0.6 : 1.8;
     let lastWord = 0;
     // Impatient? Any click or key fast-forwards the loader
     const skip = () => pre.timeScale(4);
     const pre = gsap.timeline()
       .to(counter, {
-        v: 100, duration: seen ? 0.6 : 1.6, ease: 'power3.inOut',
+        v: 100, duration: total, ease: 'power3.inOut',
         onUpdate: () => {
           numEl.textContent = Math.round(counter.v);
+          barEl.style.transform = `scaleX(${counter.v / 100})`;
           const w = Math.min(words.length - 1, Math.floor(counter.v / 34));
           if (w !== lastWord) wordEl.firstChild.textContent = words[(lastWord = w)];
         },
-      })
-      .to('.preloader__count, .preloader__top, .preloader__bottom', { y: -40, opacity: 0, duration: 0.5, ease: 'power2.in', stagger: 0.05 })
+      });
+    // each greeting flashes in on an even beat; a reload in the same session just says hello
+    (seen ? hellos.slice(0, 1) : hellos).forEach(([text, lang, name], i, list) => {
+      pre.call(() => {
+        greetEl.textContent = text;
+        greetEl.lang = lang;
+        langEl.textContent = name;
+      }, null, (i * total) / list.length);
+      pre.fromTo(greetEl, { yPercent: 18, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.16, ease: 'power2.out', immediateRender: false }, (i * total) / list.length);
+    });
+    pre.to('.preloader__hello, .preloader__top, .preloader__bottom', { y: -40, opacity: 0, duration: 0.5, ease: 'power2.in', stagger: 0.05 }, total)
       .to(preloader, { clipPath: 'inset(0 0 100% 0)', duration: 1, ease: 'expo.inOut' }, '-=0.1')
       .add(() => {
         preloader.removeEventListener('pointerdown', skip);

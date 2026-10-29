@@ -313,13 +313,23 @@ kbd { font-family: var(--f-mono); font-size: .85em; }
   font-family: var(--f-mono); font-size: 12px; text-transform: uppercase;
 }
 .preloader__top, .preloader__bottom { display: flex; justify-content: space-between; }
-.preloader__count {
-  font-family: var(--f-display); font-size: clamp(7rem, 30vw, 26rem); line-height: .8;
-  align-self: flex-end; display: flex;
+.preloader__bottom { align-items: center; gap: 24px; }
+/* one greeting at a time, centred; Anton for Latin, the system's own font for each Indic / CJK script */
+.preloader__hello { display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
+.preloader__greet {
+  font-family: var(--f-display), 'Nirmala UI', 'Noto Sans Oriya', 'Noto Sans Devanagari', 'Noto Sans Gurmukhi', 'Noto Sans Tamil', 'Yu Gothic', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-size: clamp(3.4rem, 11vw, 9.5rem); line-height: 1.15; text-transform: none; white-space: nowrap;
+  /* same box for every script, so the language name underneath never jumps */
+  display: flex; align-items: center; justify-content: center; height: clamp(4.6rem, 14vw, 12rem);
 }
-.preloader__pct { color: var(--accent); font-size: .35em; margin-top: .1em; }
+.preloader__greet:not(:lang(en)):not(:lang(es)):not(:lang(fr)) { font-weight: 700; font-size: clamp(2.8rem, 9vw, 7.5rem); line-height: 1.5; } /* room for Gurmukhi / Devanagari marks below the line */
+.preloader__lang { color: var(--accent); letter-spacing: .3em; }
+.preloader__bar { flex: 1; max-width: 320px; height: 1px; background: color-mix(in srgb, var(--paper) 22%, transparent); position: relative; overflow: hidden; }
+.preloader__bar i { position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+.preloader__count { display: flex; }
+.preloader__pct { color: var(--accent); }
 /* fixed-width counter: the digits change, the box doesn't, so nothing shifts while it counts */
-.preloader__num { display: inline-block; min-width: 2.62ch; text-align: right; font-variant-numeric: tabular-nums; }
+.preloader__num { display: inline-block; min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; }
 .blink { animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 html:not(.js) .preloader { display: none; }
