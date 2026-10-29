@@ -289,10 +289,44 @@
   window.scrollTo(0, 0);
 
   /* ---------- Preloader → hero intro ---------- */
-  const heroChars = $$('[data-hero] .char');
+  // "DEEPAK" decodes left to right out of random katakana; "Kumar Behera" rises in underneath
+  const nameChars = $$('.hero__name .char');
+  const serifChars = $$('.hero__serif .char');
+  const KANA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ';
+  const decode = (chars, duration) => {
+    const finals = chars.map((c) => c.textContent);
+    const state = { p: 0 };
+    let lastSwap = 0;
+    const done = () => chars.forEach((c, i) => {
+      c.textContent = finals[i];
+      c.classList.remove('is-scrambling');
+      c.style.width = '';
+    });
+    return gsap.to(state, {
+      p: 1, duration, ease: 'none',
+      onStart: () => chars.forEach((c) => {
+        // lock each letter's width so the line doesn't jitter while glyphs swap
+        c.style.width = c.getBoundingClientRect().width + 'px';
+        c.classList.add('is-scrambling');
+      }),
+      onUpdate: () => {
+        const revealed = Math.floor(state.p * (chars.length + 1));
+        const now = performance.now();
+        const swap = now - lastSwap > 45; // new random glyphs ~20 times a second, not every frame
+        if (swap) lastSwap = now;
+        chars.forEach((c, i) => {
+          if (i < revealed) {
+            if (c.classList.contains('is-scrambling')) { c.textContent = finals[i]; c.classList.remove('is-scrambling'); }
+          } else if (swap) c.textContent = KANA[(Math.random() * KANA.length) | 0];
+        });
+      },
+      onComplete: done,
+    });
+  };
   const intro = () => {
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
-    tl.from(heroChars, { yPercent: 115, rotate: 6, duration: 1.4, stagger: 0.04 })
+    tl.add(decode(nameChars, 1.1), 0)
+      .from(serifChars, { yPercent: 115, rotate: 6, duration: 1.4, stagger: 0.03 }, 0.35)
       .from('.hero__meta > *', { y: 20, opacity: 0, duration: 1, stagger: 0.08 }, 0.3)
       .from('.hero__cutout', { yPercent: 14, scale: 1.04, duration: 2.2 }, 0.3)
       .from('.hero .fade-up', { y: 40, opacity: 0, duration: 1.2, stagger: 0.12 }, 0.7)
@@ -320,52 +354,44 @@
     loading = true;
     document.body.classList.add('is-loading');
     lenis && lenis.stop();
-    // The full round of greetings on the first visit, a quick hello on reloads in the same session
+    // Hello around the world, one beat each, ending at home (Odia) with a longer hold.
+    // A reload in the same tab just says hello.
     let seen = false;
     try { seen = sessionStorage.getItem('dkb-seen') === '1'; sessionStorage.setItem('dkb-seen', '1'); } catch (e) {}
-    const counter = { v: 0 };
-    const words = ['Compiling ideas', 'Running Dijkstra', 'Brewing coffee', 'Ready'];
-    // home first (Odisha), then where I study (Punjab), then further out
     const hellos = [
       ['Hello', 'en', 'English'],
-      ['ନମସ୍କାର', 'or', 'Odia'],
-      ['नमस्ते', 'hi', 'Hindi'],
-      ['ਸਤ ਸ੍ਰੀ ਅਕਾਲ', 'pa', 'Punjabi'],
-      ['வணக்கம்', 'ta', 'Tamil'],
       ['Hola', 'es', 'Spanish'],
       ['Bonjour', 'fr', 'French'],
+      ['Ciao', 'it', 'Italian'],
+      ['नमस्ते', 'hi', 'Hindi'],
       ['こんにちは', 'ja', 'Japanese'],
+      ['안녕하세요', 'ko', 'Korean'],
+      ['مرحبا', 'ar', 'Arabic'],
+      ['Привет', 'ru', 'Russian'],
+      ['你好', 'zh', 'Chinese'],
+      ['Olá', 'pt', 'Portuguese'],
+      ['Merhaba', 'tr', 'Turkish'],
+      ['ନମସ୍କାର', 'or', 'Odia'],
     ];
-    const numEl = $('.preloader__num');
-    const wordEl = $('.preloader__word');
-    const barEl = $('.preloader__bar i');
+    const list = seen ? hellos.slice(0, 1) : hellos;
+    const STEP = 0.23;
+    const last = (list.length - 1) * STEP; // when the final greeting lands; the line is full by then
+    const out = last + (seen ? 0.5 : 1); // hold the last one, then fade the screen away
     const greetEl = $('.preloader__greet');
     const langEl = $('.preloader__lang');
-    const total = seen ? 0.6 : 1.8;
-    let lastWord = 0;
     // Impatient? Any click or key fast-forwards the loader
     const skip = () => pre.timeScale(4);
-    const pre = gsap.timeline()
-      .to(counter, {
-        v: 100, duration: total, ease: 'power3.inOut',
-        onUpdate: () => {
-          numEl.textContent = Math.round(counter.v);
-          barEl.style.transform = `scaleX(${counter.v / 100})`;
-          const w = Math.min(words.length - 1, Math.floor(counter.v / 34));
-          if (w !== lastWord) wordEl.firstChild.textContent = words[(lastWord = w)];
-        },
-      });
-    // each greeting flashes in on an even beat; a reload in the same session just says hello
-    (seen ? hellos.slice(0, 1) : hellos).forEach(([text, lang, name], i, list) => {
+    const pre = gsap.timeline();
+    pre.to('.preloader__bar i', { scaleX: 1, duration: Math.max(last, 0.4), ease: 'none' }, 0);
+    list.forEach(([text, lang, name], i) => {
       pre.call(() => {
         greetEl.textContent = text;
         greetEl.lang = lang;
         langEl.textContent = name;
-      }, null, (i * total) / list.length);
-      pre.fromTo(greetEl, { yPercent: 18, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.16, ease: 'power2.out', immediateRender: false }, (i * total) / list.length);
+      }, null, i * STEP);
+      pre.fromTo(greetEl, { opacity: 0 }, { opacity: 1, duration: 0.1, ease: 'none', immediateRender: false }, i * STEP);
     });
-    pre.to('.preloader__hello, .preloader__top, .preloader__bottom', { y: -40, opacity: 0, duration: 0.5, ease: 'power2.in', stagger: 0.05 }, total)
-      .to(preloader, { clipPath: 'inset(0 0 100% 0)', duration: 1, ease: 'expo.inOut' }, '-=0.1')
+    pre.to(preloader, { opacity: 0, duration: 0.7, ease: 'power2.inOut' }, out)
       .add(() => {
         preloader.removeEventListener('pointerdown', skip);
         window.removeEventListener('keydown', skip);
@@ -373,7 +399,7 @@
         preloader.remove();
         finishLoading();
       })
-      .add(intro(), '-=0.75');
+      .add(intro(), out + 0.15); // the name starts decoding while the screen fades
     preloader.addEventListener('pointerdown', skip);
     window.addEventListener('keydown', skip);
   }
