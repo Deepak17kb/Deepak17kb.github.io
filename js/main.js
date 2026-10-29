@@ -219,7 +219,7 @@
         }),
       { rootMargin: '120px' }
     );
-    $$('.hero__aura, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
+    $$('.hero__aura, .hero__field, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
   }
 
   /* ---------- No GSAP? keep everything visible and bail ---------- */
@@ -294,7 +294,7 @@
   const nameChars = $$('.hero__name .char');
   const serifChars = $$('.hero__serif .char');
   const KANA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ';
-  const PER_LETTER = 0.11;
+  const PER_LETTER = 0.1; // the reference decodes ~10 letters a second
   const decode = (chars) => {
     const finals = chars.map((c) => c.textContent);
     const state = { p: 0 };
@@ -326,8 +326,9 @@
       }),
     });
   };
-  // 0 = the loader screen starts to fade; the rest of the hero arrives with the page
-  const DECODE_AT = 0.85;
+  // 0 = the loader screen starts to fade; the rest of the hero arrives with the page.
+  // Measured on the reference recording: screen gone by 0.15s, greeting gone by ~0.35s, decode at ~0.6s.
+  const DECODE_AT = 0.6;
   const intro = () => {
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
     tl.set(nameChars, { opacity: 0 }, 0) // the name area stays empty until it decodes
@@ -382,7 +383,7 @@
     const list = seen ? hellos.slice(0, 1) : hellos;
     const STEP = 0.23;
     const last = (list.length - 1) * STEP; // when the final greeting lands; the line is full by then
-    const out = last + (seen ? 0.4 : 0.75); // hold the last one, then the screen fades away first
+    const out = last + (seen ? 0.4 : 0.73); // hold the last one, then the screen fades away first
     const greetBox = $('.preloader__greet');
     const langBox = $('.preloader__lang');
     const hello = $('.preloader__hello');
@@ -391,9 +392,9 @@
       const el = document.createElement('span');
       el.textContent = text;
       if (lang) el.lang = lang;
-      [...box.children].forEach((old) => gsap.to(old, { opacity: 0, duration: 0.1, ease: 'none', onComplete: () => old.remove() }));
+      [...box.children].forEach((old) => gsap.to(old, { opacity: 0, duration: 0.05, ease: 'none', onComplete: () => old.remove() }));
       box.appendChild(el);
-      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.1, ease: 'none' });
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.05, ease: 'none' });
     };
     // Impatient? Any click or key fast-forwards the loader
     const skip = () => pre.timeScale(4);
@@ -403,18 +404,18 @@
       if (i) pre.call(() => { crossfade(greetBox, text, lang); crossfade(langBox, name); }, null, i * STEP); // Hello is in the markup
     });
     // the screen goes first and the page shows through; the last greeting takes the page's ink
-    // (readable on the light theme too), then dissolves: fade, blur, a slight grow
-    pre.to(preloader, { backgroundColor: 'rgba(15, 14, 13, 0)', duration: 0.3, ease: 'power1.out' }, out)
-      .to('.preloader__bar', { opacity: 0, duration: 0.25 }, out)
-      .to(hello, { color: () => getComputedStyle(root).getPropertyValue('--ink').trim(), duration: 0.3 }, out)
-      .fromTo(hello, { filter: 'blur(0px)' }, { opacity: 0, scale: 1.06, filter: 'blur(14px)', duration: 0.4, ease: 'power2.in' }, out + 0.2)
+    // (readable on the light theme too), then dissolves: fade, a little blur, a slight grow
+    pre.to(preloader, { backgroundColor: 'rgba(15, 14, 13, 0)', duration: 0.15, ease: 'power1.out' }, out)
+      .to('.preloader__bar', { opacity: 0, duration: 0.15 }, out)
+      .to(hello, { color: () => getComputedStyle(root).getPropertyValue('--ink').trim(), duration: 0.15 }, out)
+      .fromTo(hello, { filter: 'blur(0px)' }, { opacity: 0, scale: 1.03, filter: 'blur(8px)', duration: 0.25, ease: 'power1.in' }, out + 0.1)
       .add(() => {
         preloader.removeEventListener('pointerdown', skip);
         window.removeEventListener('keydown', skip);
         pre.timeScale(1);
         preloader.remove();
         finishLoading();
-      }, out + 0.6)
+      }, out + 0.4)
       .add(intro(), out);
     preloader.addEventListener('pointerdown', skip);
     window.addEventListener('keydown', skip);

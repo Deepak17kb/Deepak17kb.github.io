@@ -42,6 +42,7 @@
   <!-- fonts and libraries are self-hosted: no third-party connections before first paint -->
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/anton-normal-latin-1.woff2" crossorigin />
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-tight-normal-latin-7.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cal-sans-normal-latin.woff2" crossorigin />
   <link rel="preload" as="image" type="image/avif" imagesrcset="assets/deepak-portrait-540.avif 540w, assets/deepak-portrait-800.avif 800w, assets/deepak-portrait-1087.avif 1087w" imagesizes="(max-width: 860px) 90vw, 50vw" fetchpriority="high" />
   <link rel="stylesheet" href="css/style.css" />
 
@@ -121,6 +122,8 @@
 
     <!-- ============ HERO ============ -->
     <section class="hero">
+      <!-- flowing strands (js/hero-field.js); they start drawing under the intro loader -->
+      <div class="hero__field" aria-hidden="true" hidden><canvas></canvas></div>
       <!-- behind the photo: a small road network that keeps routing from a problem to a solution, around the portrait -->
       <div class="hero__aura" aria-hidden="true">
         <svg class="route-graph" viewBox="-435 -240 1957 1559" focusable="false"></svg>
@@ -848,6 +851,7 @@
   <script src="vendor/lenis.min.js" defer></script>
   <script src="js/data.js" defer></script>
   <script src="js/projects.js" defer></script>
+  <script src="js/hero-field.js" defer></script>
   <script src="js/main.js" defer></script>
   <script src="js/coffee.js" defer></script>
   <script src="js/hero-graph.js" defer></script>
