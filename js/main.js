@@ -501,7 +501,11 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => refreshSoon.restart(true));
   window.addEventListener('load', () => refreshSoon.restart(true));
 
-  if (reduced) return;
+  if (reduced) {
+    // no horizontal scroll to rebuild; just re-measure the section triggers when GitHub adds panels
+    document.addEventListener('dkb:work-changed', () => refreshSoon.restart(true));
+    return;
+  }
 
   /* ---------- Hero parallax out ---------- */
   gsap.to('.hero__title', { yPercent: -10, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
@@ -597,13 +601,15 @@
   const mm = gsap.matchMedia();
   mm.add('(min-width: 861px)', () => {
     const workTrack = $('.work__track');
-    const panels = $$('.project', workTrack);
+    let panels = [];
     const hudNum = $('.work__count b');
     const hudBar = $('.work__bar i');
     let distance = 0;
     let lefts = [];
     let shownIdx = -1;
+    // re-read the panels each time: js/projects.js can add some from GitHub after load
     const measure = () => {
+      panels = $$('.project', workTrack);
       distance = workTrack.scrollWidth - window.innerWidth;
       lefts = panels.map((p) => p.offsetLeft);
     };
@@ -651,7 +657,10 @@
     pin.addEventListener('scroll', keepPinStill);
     workTrack.addEventListener('focusin', revealFocused);
 
-    panels.forEach((panel) => {
+    const animated = new WeakSet();
+    const animatePanel = (panel) => {
+      if (animated.has(panel)) return;
+      animated.add(panel);
       gsap.fromTo($('.project__visual', panel), { xPercent: 18, rotate: 4 }, {
         xPercent: -8, rotate: -2, ease: 'none',
         scrollTrigger: { trigger: panel, containerAnimation: horiz, start: 'left right', end: 'right left', scrub: true },
@@ -660,20 +669,38 @@
         y: 60, opacity: 0, stagger: 0.06, duration: 1, ease: 'expo.out',
         scrollTrigger: { trigger: panel, containerAnimation: horiz, start: 'left 65%' },
       });
-    });
-  
+    };
+    panels.forEach(animatePanel);
+    // new panels from GitHub: animate them like the rest, then re-measure the scroll distance
+    const onWorkChanged = () => {
+      $$('.project', workTrack).forEach(animatePanel);
+      ScrollTrigger.refresh();
+    };
+    document.addEventListener('dkb:work-changed', onWorkChanged);
+
     return () => {
       pin.removeEventListener('scroll', keepPinStill);
       workTrack.removeEventListener('focusin', revealFocused);
+      document.removeEventListener('dkb:work-changed', onWorkChanged);
     };
   });
   mm.add('(max-width: 860px)', () => {
-    $$('.project').forEach((panel) => {
+    const animated = new WeakSet();
+    const animatePanel = (panel) => {
+      if (animated.has(panel)) return;
+      animated.add(panel);
       gsap.from($$('.project__visual, .project__title, .project__tag, .project__metrics, .tags, .project__links', panel), {
         y: 50, opacity: 0, stagger: 0.07, duration: 1, ease: 'expo.out',
         scrollTrigger: { trigger: panel, start: 'top 80%' },
       });
-    });
+    };
+    $$('.project').forEach(animatePanel);
+    const onWorkChanged = () => {
+      $$('.project').forEach(animatePanel);
+      ScrollTrigger.refresh();
+    };
+    document.addEventListener('dkb:work-changed', onWorkChanged);
+    return () => document.removeEventListener('dkb:work-changed', onWorkChanged);
   });
 
   /* ---------- Generic staggered reveals ---------- */

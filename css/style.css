@@ -770,6 +770,24 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 .outro__link:hover { color: var(--accent); }
 .outro__link:hover span { transform: translate(10px, -10px) rotate(45deg); }
 
+/* "Also built" + "Fresh on GitHub" side by side; with no live repos it's the single list it always was */
+.outro__cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 0 clamp(28px, 4vw, 64px); align-items: start; }
+.outro__cols > div > p { margin-bottom: 12px; }
+.outro__live[hidden] { display: none; }
+.outro__live .ghlive__dot { display: inline-block; margin-right: 8px; vertical-align: 1px; }
+.more--live a { grid-template-columns: 1fr auto; row-gap: 4px; }
+.more--live em { grid-column: 1; grid-row: 2; }
+.more--live i { grid-column: 2; grid-row: 1 / 4; align-self: center; }
+.more__meta { grid-column: 1; grid-row: 3; color: var(--muted); font-size: 10px; }
+
+/* panels added from GitHub: a graph drawn from the repo name, routed like the others */
+.g-edges line { stroke: var(--ink); stroke-width: 1.4; opacity: .16; }
+.g-nodes circle { fill: var(--card); stroke: var(--ink); stroke-width: 1.6; opacity: .55; }
+.g-path { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: gRoute 4.5s var(--ease) infinite; }
+.g-start { fill: var(--ink); }
+.g-end { fill: var(--accent); stroke: var(--card); stroke-width: 3; }
+@keyframes gRoute { 0% { stroke-dashoffset: 1; } 50%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+
 /* ---------- Journey ---------- */
 .rows { border-top: 1px solid var(--line); }
 .row { border-bottom: 1px solid var(--line); position: relative; }
@@ -1415,7 +1433,7 @@ html:not(.has-upi) .btn--chat:hover { color: #fff; border-color: var(--accent); 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
-  .l-path, .w-paths polyline, .w-median, .u-ring, .n-safe { animation: none !important; stroke-dashoffset: 0 !important; }
+  .l-path, .w-paths polyline, .w-median, .u-ring, .n-safe, .g-path { animation: none !important; stroke-dashoffset: 0 !important; }
   .u-pulse { display: none; }
   .grain { display: none; }
 }

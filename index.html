@@ -437,6 +437,8 @@
           </article>
 
           <div class="panel panel--outro">
+            <div class="outro__cols">
+            <div>
             <p class="mono">Also built</p>
             <ul class="more">
               <li><a href="https://krishi-mitra-silk-nine.vercel.app" target="_blank" rel="noopener"><span class="more__name">KrishiMitra</span><em class="serif">AI farming assistant</em><i>↗</i></a></li>
@@ -444,6 +446,13 @@
               <li><a href="https://automated-deadlock-detection-tool.vercel.app" target="_blank" rel="noopener"><span class="more__name">Deadlock Detector</span><em class="serif">OS wait-for graphs</em><i>↗</i></a></li>
               <li><a href="https://deepak17kb.github.io/Echo-Voice-Studio/" target="_blank" rel="noopener"><span class="more__name">Echo Voice Studio</span><em class="serif">voice notes, Python in the browser</em><i>↗</i></a></li>
             </ul>
+            </div>
+            <!-- filled by js/projects.js with public repos that aren't on this page yet; stays hidden if GitHub can't be reached -->
+            <div class="outro__live" hidden>
+              <p class="mono"><span class="ghlive__dot" aria-hidden="true"></span>Fresh on GitHub <span data-repo-count></span></p>
+              <ul class="more more--live"></ul>
+            </div>
+            </div>
             <a href="https://github.com/Deepak17kb" target="_blank" rel="noopener" class="outro__link" data-cursor="Visit">
               GitHub <span>↗</span>
             </a>
@@ -451,7 +460,7 @@
 
         </div>
         <div class="work__hud mono" aria-hidden="true">
-          <span class="work__count"><b>00</b> / 04</span>
+          <span class="work__count"><b>00</b> / <span data-work-total>04</span></span>
           <span class="work__bar"><i></i></span>
           <span>Scroll</span>
         </div>
@@ -845,6 +854,7 @@
   <script src="vendor/ScrollTrigger.min.js" defer></script>
   <script src="vendor/lenis.min.js" defer></script>
   <script src="js/data.js" defer></script>
+  <script src="js/projects.js" defer></script>
   <script src="js/main.js" defer></script>
   <script src="js/coffee.js" defer></script>
   <script src="js/hero-graph.js" defer></script>
