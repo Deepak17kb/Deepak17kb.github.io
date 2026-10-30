@@ -21,13 +21,13 @@
   const PAD = 100; // particles live in a margin around the canvas too
   const SPEED = 2.2;
   const PULL = 3;
-  const ALPHA = 0.02; // light strokes stack up fast, so each one is fainter than a dark colour would be
+  const ALPHA = 0.02; // light strokes stack up fast, so each one is faint
   const BATCHES = 450; // many small strokes: where strands bunch up in the same frame they still add up, as with one stroke each
   // One fixed seed: the same field every visit, chosen offline from 600 candidates as the closest to the reference
   // (strands sweeping down and to the right, one bright ribbon through the left of the hero).
   const SEED = 466;
-  const COLORS = { dark: '255, 196, 128', light: '246, 200, 156' }; // warm gold
-  const THREADS = { dark: '255, 96, 112', light: '248, 160, 150' }; // one stroke batch in ten is coral
+  const COLORS = { dark: '201, 209, 219', light: '170, 182, 198' }; // moonlit silver
+  const THREADS = { dark: '229, 32, 46', light: '232, 130, 136' }; // one stroke batch in ten is signal red
 
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, W2 = 0, H2 = 0, cols = 0, rows = 0, dpr = 1;
