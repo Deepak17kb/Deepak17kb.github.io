@@ -181,6 +181,17 @@
   --green-fill: #1F7A35; /* green surfaces with white text on them */
   --gold: #D4A72C;
   --card: #FAFAF7;
+  --grad-red: linear-gradient(172deg, #E8243C 0%, #C8102E 50%, #8A0C24 100%);
+  --grad-name: linear-gradient(172deg, #E8243C 0%, #C8102E 55%, #8A0C24 100%);
+  --grad-soft: linear-gradient(172deg, #D81B38, #B3102F);
+  --grad-green: linear-gradient(172deg, #25944F 0%, #1F7A35 50%, #0F4F22 100%);
+  --surface: linear-gradient(155deg, rgba(255, 255, 255, .88), rgba(255, 255, 255, .6) 46%, rgba(220, 20, 60, .05));
+  --surface-solid: linear-gradient(155deg, #FFFFFF, #F4F6F2 55%, #F9EEF0);
+  --light-a: rgba(31, 122, 83, .16);
+  --light-b: rgba(220, 20, 60, .11);
+  --light-c: rgba(99, 177, 156, .16);
+  --light-spot: rgba(220, 20, 60, .07);
+  --vignette: rgba(28, 40, 34, .10);
   --portrait-opacity: 1;
 
   --f-display: 'Anton', 'Impact', sans-serif;
@@ -194,19 +205,30 @@
 }
 
 [data-theme="dark"] {
-  --paper: #1A1B1A; /* charcoal black */
-  --paper-2: #222422;
-  --ink: #ECEDE9;
-  --muted: #9DA29B;
-  --line: rgba(236, 237, 233, 0.14);
+  --paper: #061412; /* the deep green-black of the reference */
+  --paper-2: #0B1F1A;
+  --ink: #EDF1EC;
+  --muted: #9FB0A8;
+  --line: rgba(159, 190, 176, 0.16);
   --accent: #DC143C;
-  --accent-text: #FF5C78;
+  --accent-text: #FF6F86; /* 4.5:1 even on the brightest green glow */
   --accent-ink: #FFFFFF;
-  --green: #2F9A48;
-  --green-text: #5CC072;
+  --green: #4FC48A;
+  --green-text: #5CC79A;
   --green-fill: #1F7A35;
   --gold: #E8BE4A;
-  --card: #232523;
+  --card: #0C211C;
+  --grad-red: linear-gradient(172deg, #FF7478 0%, #F2283C 46%, #DE1C36 100%); /* numbers: stays above 3:1 to the bottom */
+  --grad-name: linear-gradient(172deg, #F2323C 0%, #DC1A33 58%, #B5142C 100%); /* the big name: deep, matte */
+  --grad-soft: linear-gradient(172deg, #FF9A9E, #FF6F86); /* smaller italic words */
+  --grad-green: linear-gradient(172deg, #A8E6C8 0%, #4FC48A 42%, #1F9455 100%);
+  --surface: linear-gradient(155deg, rgba(99, 177, 156, .11), rgba(8, 26, 22, .62) 44%, rgba(220, 20, 60, .09));
+  --surface-solid: linear-gradient(155deg, #103029, #081E19 55%, #1C0D11);
+  --light-a: rgba(31, 122, 83, .36);
+  --light-b: rgba(200, 16, 40, .32);
+  --light-c: rgba(99, 177, 156, .17);
+  --light-spot: rgba(226, 28, 52, .13);
+  --vignette: rgba(0, 0, 0, .55);
   --portrait-opacity: 1;
 }
 
@@ -220,15 +242,15 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 html.is-locked { overflow: hidden; }
 
+html { background: var(--paper); transition: background-color .5s var(--ease-out); }
 body {
-  background: var(--paper);
   color: var(--ink);
   font-family: var(--f-sans);
   font-size: 16px;
   line-height: 1.55;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  transition: background-color .5s var(--ease-out), color .5s var(--ease-out);
+  transition: color .5s var(--ease-out);
 }
 body.is-loading { overflow: hidden; }
 
@@ -551,7 +573,7 @@ html:not(.js) .preloader { display: none; }
   -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
   mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
 }
-.hero > :not(.hero__face):not(.hero__aura):not(.hero__marks):not(.hero__field) { position: relative; z-index: 1; }
+.hero > :not(.hero__face):not(.hero__aura):not(.hero__marks):not(.hero__field):not(.hero__beam):not(.hero__floor) { position: relative; z-index: 1; }
 .hero > .hero__bottom, .hero > .hero__meta { z-index: 3; } /* buttons and the meta row stay above the photo and the route */
 
 .hero__title {
@@ -650,7 +672,7 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 
 /* DEEPAK.EXE: same window chrome as the terminal */
 .exe {
-  --t-bg: #161716; --t-bar: #1F211F; --t-fg: #ECEDE9; --t-dim: #8F948D; --t-line: rgba(236, 237, 233, .12); --t-green: #5CC072; --t-acc: #FF5C78;
+  --t-bg: #081A16; --t-bar: #0E2620; --t-fg: #EDF1EC; --t-dim: #8FA39B; --t-line: rgba(159, 190, 176, .14); --t-green: #5CC79A; --t-acc: #FF5C78;
   background: var(--t-bg); color: var(--t-fg); border: 1px solid var(--t-line); border-radius: 12px; overflow: hidden;
   box-shadow: 0 30px 60px -36px rgba(0, 0, 0, .55);
 }
@@ -1006,7 +1028,7 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 @media (hover: none) { .shell__tip { display: none; } } /* no keyboard shortcuts on touch */
 
 .term {
-  --t-bg: #161716; --t-bar: #1F211F; --t-fg: #ECEDE9; --t-dim: #8F948D; --t-line: rgba(236, 237, 233, .12); --t-green: #5CC072; --t-acc: #FF5C78;
+  --t-bg: #081A16; --t-bar: #0E2620; --t-fg: #EDF1EC; --t-dim: #8FA39B; --t-line: rgba(159, 190, 176, .14); --t-green: #5CC79A; --t-acc: #FF5C78;
   background: var(--t-bg); color: var(--t-fg);
   border: 1px solid var(--t-line); border-radius: 12px; overflow: hidden;
   font-family: var(--f-mono); font-size: 13px; line-height: 1.6;
@@ -1224,9 +1246,7 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
   content: ""; position: absolute; width: 320px; height: 320px; right: -120px; top: -120px;
   border-radius: 50%; background: var(--accent); opacity: .18; filter: blur(10px);
 }
-/* the card is the inverse of the page: light crimson on the charcoal card, deep crimson on the off-white one */
 .coffee__kicker { color: #FF5C78; }
-[data-theme="dark"] .coffee__kicker { color: #B3102F; }
 .coffee h3 { font-family: var(--f-display); font-weight: 400; font-size: clamp(2.4rem, 4vw, 3.6rem); text-transform: uppercase; line-height: .95; }
 .coffee h3 .serif { color: var(--accent); }
 .coffee p { color: color-mix(in srgb, var(--paper) 70%, transparent); }
@@ -1355,6 +1375,156 @@ html:not(.has-upi) .btn--chat:hover { color: #fff; border-color: var(--accent); 
 /* ---------- Easter egg ---------- */
 .rain { position: fixed; top: -60px; z-index: 970; pointer-events: none; font-size: 32px; }
 
+/* ---------- Lit shading: colours that glow, fade and move instead of flat fills ---------- */
+/* The page's light: three big soft glows and a pointer light, drifting behind everything.
+   They move on `translate` / `scale` (compositor only); the scroll and pointer move them through `transform`. */
+.ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.ambient i { position: absolute; display: block; border-radius: 50%; will-change: transform; }
+.ambient__a {
+  left: -22vmax; top: -24vmax; width: 80vmax; height: 80vmax;
+  background: radial-gradient(closest-side, var(--light-a), transparent);
+  animation: light-a 38s ease-in-out infinite;
+}
+.ambient__b {
+  right: -20vmax; bottom: -28vmax; width: 78vmax; height: 78vmax;
+  background: radial-gradient(closest-side, var(--light-b), transparent);
+  animation: light-b 31s ease-in-out infinite;
+}
+.ambient__c {
+  right: -10vmax; top: 6vmax; width: 56vmax; height: 56vmax;
+  background: radial-gradient(closest-side, var(--light-c), transparent);
+  animation: light-c 44s ease-in-out infinite;
+}
+.ambient__spot {
+  left: -24vmax; top: -24vmax; width: 48vmax; height: 48vmax;
+  background: radial-gradient(closest-side, var(--light-spot), transparent);
+}
+.ambient::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 42%, transparent 46%, var(--vignette) 100%); }
+@keyframes light-a { 0%, 100% { translate: -6vw -4vh; scale: 1; } 50% { translate: 13vw 11vh; scale: 1.18; } }
+@keyframes light-b { 0%, 100% { translate: 5vw 5vh; scale: 1.1; } 50% { translate: -14vw -9vh; scale: .94; } }
+@keyframes light-c { 0%, 100% { translate: 4vw -3vh; scale: 1; } 50% { translate: -12vw 13vh; scale: 1.22; } }
+@media (hover: none), (pointer: coarse) { .ambient__spot { display: none; } }
+
+/* Hero: the red beam stands left of the head, soft on every edge, and breathes */
+.hero__beam {
+  position: absolute; z-index: 0; top: -8%; bottom: 14%; left: 47%; width: 14%; pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(186, 30, 35, .55) 18%, #FD1819 56%, rgba(180, 20, 30, .7) 82%, transparent 100%);
+  clip-path: polygon(46% 0, 74% 0, 100% 100%, 8% 100%);
+  filter: blur(26px); transform: skewX(-8deg); opacity: .62;
+  animation: beam 8s ease-in-out infinite;
+}
+[data-theme="light"] .hero__beam { opacity: .3; mix-blend-mode: multiply; }
+@keyframes beam { 0%, 100% { opacity: .5; } 45% { opacity: .78; } 60% { opacity: .62; } }
+[data-theme="light"] .hero__beam { animation: none; }
+
+/* ...and pools on a glossy floor, with a sage reflection beside it */
+.hero__floor {
+  position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: 30%; pointer-events: none;
+  background:
+    radial-gradient(24% 42% at 58% 80%, rgba(253, 24, 25, .5), transparent 72%),
+    radial-gradient(34% 34% at 30% 96%, rgba(220, 20, 60, .2), transparent 72%),
+    radial-gradient(44% 46% at 88% 92%, rgba(99, 177, 156, .15), transparent 72%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 45%, #000 70%, transparent);
+  animation: floor 8s ease-in-out infinite;
+}
+[data-theme="light"] .hero__floor { opacity: .5; }
+@keyframes floor { 0%, 100% { opacity: .72; scale: 1 1; } 45% { opacity: 1; scale: 1.05 1; } }
+[data-theme="light"] .hero__floor { animation: none; }
+
+/* DEEPAK: shaded crimson with a glow behind it and a sheen that crosses the letters */
+.hero__name { color: var(--accent); }
+.hero__title::before {
+  content: ""; position: absolute; z-index: -1; left: -6%; top: -8%; width: 86%; height: 72%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(220, 20, 60, .3), transparent);
+  animation: glow 8s ease-in-out infinite;
+}
+[data-theme="light"] .hero__title::before { background: radial-gradient(closest-side, rgba(220, 20, 60, .12), transparent); }
+@keyframes glow { 0%, 100% { opacity: .75; } 45% { opacity: 1; } }
+.hero__name .char {
+  background-image: linear-gradient(165deg, transparent 38%, rgba(255, 196, 196, .34) 50%, transparent 62%), var(--grad-name);
+  background-size: 300% 100%, 100% 100%; background-position: 130% 0, 0 0; background-repeat: no-repeat;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sheen 7s ease-in-out infinite;
+}
+.hero__name .word .char:nth-child(2) { animation-delay: .1s; }
+.hero__name .word .char:nth-child(3) { animation-delay: .2s; }
+.hero__name .word .char:nth-child(4) { animation-delay: .3s; }
+.hero__name .word .char:nth-child(5) { animation-delay: .4s; }
+.hero__name .word .char:nth-child(6) { animation-delay: .5s; }
+@keyframes sheen { 0%, 62% { background-position: 130% 0, 0 0; } 82%, 100% { background-position: -30% 0, 0 0; } }
+.hero__name .char.is-scrambling { background: none; -webkit-text-fill-color: var(--ink); color: var(--ink); animation: none; }
+
+/* Words that used to be one flat colour are lit: per letter where the text is split, so GSAP can still move each one.
+   Padding gives the slanted serif room, or its tails would fall outside the painted box. */
+.big-title .serif .char, .contact__title .serif .char {
+  padding: .12em .08em; margin: -.12em -.08em;
+  background-image: var(--grad-green);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.project__title .serif, .shell__intro h3 .serif, .cafe__title .serif {
+  padding: .1em .08em; margin: -.1em -.08em;
+  background-image: var(--grad-green);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.project__metrics strong {
+  background-image: var(--grad-red);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.rotator__word {
+  background-image: var(--grad-soft);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.footer__name .fl {
+  background-image: var(--grad-name);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* Buttons and bars */
+.btn--fill {
+  background: linear-gradient(135deg, #FF3B45 0%, #DC143C 50%, #8E0F26 100%); color: #fff; border-color: transparent;
+  box-shadow: 0 12px 34px -12px rgba(220, 20, 60, .75), inset 0 1px 0 rgba(255, 255, 255, .28);
+}
+.btn--fill::before { background: linear-gradient(135deg, #FF6B72, #F01A33); }
+.btn--fill:hover { color: #fff; border-color: transparent; box-shadow: 0 14px 44px -10px rgba(240, 26, 51, .95), inset 0 1px 0 rgba(255, 255, 255, .35); }
+.btn--coffee, html:not(.has-upi) .btn--chat {
+  background: linear-gradient(135deg, #2FA65C, #1F7A35 55%, #0F4F22); border-color: transparent;
+  box-shadow: 0 12px 30px -12px rgba(47, 166, 92, .7), inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+.progress span { background: linear-gradient(90deg, #1F7A35, #DC143C 62%, #FF4D5A); box-shadow: 0 0 16px rgba(220, 20, 60, .65); }
+.marquee {
+  background: linear-gradient(100deg, #0A3A24 0%, #1F7A35 26%, #27904C 42%, #1F7A35 58%, #0A3A24 100%);
+  background-size: 240% 100%; animation: band 11s linear infinite;
+  box-shadow: 0 0 60px -6px rgba(31, 122, 53, .55);
+}
+@keyframes band { from { background-position: 0 0; } to { background-position: -240% 0; } }
+
+/* Panels: lit glass instead of flat fills */
+.card:not(.card--gold), .lab__app, .algo, .seg { background: var(--surface); }
+.card:not(.card--gold) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+.card:not(.card--gold):hover { box-shadow: 0 30px 70px -32px rgba(220, 20, 60, .6), inset 0 1px 0 rgba(255, 255, 255, .1); }
+.card__shine { background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(240, 26, 51, .24), transparent 48%); }
+.card--gold .card__shine { background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .35), transparent 45%); }
+.project__visual { background: var(--surface-solid); box-shadow: 0 40px 90px -46px rgba(220, 20, 60, .55), inset 0 1px 0 rgba(255, 255, 255, .06); }
+.trophies { background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--paper-2) 70%, transparent) 12%, color-mix(in srgb, var(--paper-2) 70%, transparent) 88%, transparent); }
+.term, .exe { background: linear-gradient(160deg, #0E2620, var(--t-bg) 42%, #140B0F); box-shadow: 0 40px 90px -44px rgba(220, 20, 60, .5), 0 0 0 1px var(--t-line); }
+
+/* The coffee card and the footer stay dark and lit in both themes */
+.coffee {
+  --ink: #081A16; --paper: #EDF1EC;
+  background: radial-gradient(90% 90% at 100% 0%, rgba(220, 20, 60, .3), transparent 62%), linear-gradient(155deg, #0E2A23, #081A16 62%);
+  border: 1px solid rgba(159, 190, 176, .16);
+  box-shadow: 0 40px 90px -44px rgba(220, 20, 60, .5);
+}
+.footer {
+  --paper: #EDF1EC; --ink: #061412;
+  background:
+    radial-gradient(58% 120% at 90% 112%, rgba(220, 20, 60, .42), transparent 72%),
+    radial-gradient(70% 120% at 6% -6%, rgba(31, 122, 83, .46), transparent 72%),
+    linear-gradient(180deg, #081A16, #040D0B);
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
   .cards { grid-template-columns: 1fr 1fr; }
@@ -1385,7 +1555,7 @@ html:not(.has-upi) .btn--chat:hover { color: #fff; border-color: var(--accent); 
   /* phones: the portrait sits top-right behind the big name, as a faint watermark */
   .hero__face, .hero__aura, .hero__marks { top: 70px; bottom: auto; right: -12vw; height: min(52vh, 100vw); }
   /* the photo is a see-through watermark here, so anything behind it would show across the face */
-  .hero__aura, .hero__marks { display: none; }
+  .hero__aura, .hero__marks, .hero__beam { display: none; }
   .hero__face { z-index: 0; --portrait-opacity: .3; } /* faint watermark behind the name, as before */
   .hero__bottom { grid-template-columns: 1fr; gap: 24px; }
 

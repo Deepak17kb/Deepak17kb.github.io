@@ -26,13 +26,15 @@
   // One fixed seed: the same field every visit, chosen offline from 600 candidates as the closest to the reference
   // (strands sweeping down and to the right, one bright ribbon through the left of the hero).
   const SEED = 466;
-  const COLORS = { dark: '34, 139, 34', light: '150, 184, 155' }; // forest green
+  const COLORS = { dark: '46, 150, 112', light: '150, 184, 165' }; // forest green, leaning to the sage of the car in the reference
+  const THREADS = { dark: '226, 28, 52', light: '226, 150, 160' }; // one stroke batch in ten is crimson
 
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, W2 = 0, H2 = 0, cols = 0, rows = 0, dpr = 1;
   let fx = null, fy = null; // field vectors per cell
   let px, py, qx, qy, vx, vy, ax, ay; // particle position, previous position, velocity, pull
   let ready = false, building = 0, raf = 0, onScreen = true;
+  let strand = '', thread = '';
 
   /* ---------- Value noise, 4 octaves, smooth (cosine) interpolation; mirrored at 0 ---------- */
   const SIZE = 4095;
@@ -116,7 +118,8 @@
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-    ctx.strokeStyle = `rgba(${COLORS[theme]}, ${ALPHA})`;
+    strand = `rgba(${COLORS[theme]}, ${ALPHA})`;
+    thread = `rgba(${THREADS[theme]}, ${ALPHA})`;
     ctx.lineWidth = 1;
     // the field takes ~100k noise samples; spread it over frames so the intro never stutters
     const job = ++building;
@@ -152,6 +155,7 @@
     ctx.setTransform(dpr, 0, 0, dpr, -PAD * dpr, -PAD * dpr);
     const per = Math.ceil(COUNT / BATCHES);
     for (let b = 0; b < BATCHES; b++) {
+      ctx.strokeStyle = b % 10 ? strand : thread;
       ctx.beginPath();
       for (let i = b * per, end = Math.min(COUNT, i + per); i < end; i++) {
         const dx = px[i] - qx[i], dy = py[i] - qy[i];

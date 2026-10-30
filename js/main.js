@@ -79,16 +79,10 @@
   const metaTheme = $('meta[name="theme-color"]');
   const setTheme = (t, persist = true) => {
     root.setAttribute('data-theme', t);
-    metaTheme.setAttribute('content', t === 'dark' ? '#1A1B1A' : '#F2F2EE');
+    metaTheme.setAttribute('content', t === 'dark' ? '#061412' : '#F2F2EE');
     if (persist) try { localStorage.setItem('dkb-theme', t); } catch (e) {}
   };
-  setTheme(root.getAttribute('data-theme') || 'light', false);
-  // Follow the OS theme until the visitor picks one explicitly
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    let saved = null;
-    try { saved = localStorage.getItem('dkb-theme'); } catch (err) {}
-    if (!saved) setTheme(e.matches ? 'dark' : 'light', false);
-  });
+  setTheme(root.getAttribute('data-theme') || 'dark', false);
   const toggleTheme = (x, y) => {
     const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     if (!document.startViewTransition || reduced) return setTheme(next);
@@ -219,7 +213,7 @@
         }),
       { rootMargin: '120px' }
     );
-    $$('.hero__aura, .hero__field, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
+    $$('.hero__aura, .hero__field, .hero__beam, .hero__floor, .hero__title, .marquee, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
   }
 
   /* ---------- No GSAP? keep everything visible and bail ---------- */
@@ -550,6 +544,12 @@
     return;
   }
 
+  /* ---------- The page's light travels with the scroll ---------- */
+  const lightScroll = { start: 0, end: 'max', scrub: 1.2 };
+  gsap.to('.ambient__a', { yPercent: 55, xPercent: 18, ease: 'none', scrollTrigger: lightScroll });
+  gsap.to('.ambient__b', { yPercent: -60, xPercent: -30, ease: 'none', scrollTrigger: lightScroll });
+  gsap.to('.ambient__c', { yPercent: 40, xPercent: -20, ease: 'none', scrollTrigger: lightScroll });
+
   /* ---------- Hero parallax out ---------- */
   gsap.to('.hero__title', { yPercent: -10, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
   gsap.to('.hero__face', { yPercent: 12, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
@@ -764,6 +764,11 @@
   /* ---------- Pointer effects (desktop only) ---------- */
   if (!finePointer) return;
   root.classList.add('has-cursor');
+
+  // A soft light that follows the pointer
+  const spotX = gsap.quickTo('.ambient__spot', 'x', { duration: 1.6, ease: 'power3' });
+  const spotY = gsap.quickTo('.ambient__spot', 'y', { duration: 1.6, ease: 'power3' });
+  window.addEventListener('pointermove', (e) => { spotX(e.clientX); spotY(e.clientY); }, { passive: true });
 
   // Cached rects go stale when the page scrolls
   let scrollEpoch = 0;
