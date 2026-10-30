@@ -1,7 +1,8 @@
 /* =========================================================
-   Projects straight from GitHub, so a new repo shows up without editing this site.
-   - a public repo tagged `portfolio-project` gets its own panel in Selected Work
-   - other public repos that aren't on the page yet go in "Fresh on GitHub"
+   Projects straight from GitHub: publish a public repo and it appears here, nothing to edit or tag.
+   - a repo created in the last 90 days (with a description or a homepage) gets its own panel in
+     Selected Work, and so does any repo tagged `portfolio-project`
+   - every other public repo that isn't on the page yet goes in "Fresh on GitHub"
    - tag a repo `portfolio-hide` to keep it off the site
    Hand-written entries in js/data.js always win: a repo they cover is never listed twice.
    Cached in localStorage (the public API allows 60 calls/hour). If GitHub can't be reached,
@@ -11,12 +12,13 @@
   const D = window.DKB_DATA || {};
   const USER = 'Deepak17kb';
   const KEY = 'dkb-gh-repos';
-  const TTL = 30 * 60 * 1000; // ask GitHub again after 30 minutes
+  const TTL = 5 * 60 * 1000; // ask GitHub again after 5 minutes
   const MAX_AGE = 7 * 86400000; // never show a cache older than a week
   const PROMOTE = 'portfolio-project';
   const HIDE = 'portfolio-hide';
   const MAX_PANELS = 3;
-  const MAX_LIST = 3;
+  const MAX_LIST = 6;
+  const NEW_DAYS = 90; // a repo this young counts as a new project
   const SKIP = new Set([USER.toLowerCase(), `${USER}.github.io`.toLowerCase()]); // profile README, this site
   const QUIET_TOPICS = new Set([PROMOTE, HIDE, 'portfolio', 'github-pages']);
 
@@ -59,13 +61,14 @@
       });
 
   /* ---------- Choosing what to show ---------- */
+  const isNew = (r) => (r.description || r.homepage) && Date.now() - new Date(r.created) < NEW_DAYS * 86400000;
   const pick = (repos) => {
     const candidates = repos.filter((r) =>
       !SKIP.has(r.name.toLowerCase()) && !r.archived && !r.topics.includes(HIDE) && !onPage(r) &&
       (!r.fork || r.topics.includes(PROMOTE)) // a fork only counts when it's tagged on purpose (team projects)
     );
     const panels = candidates
-      .filter((r) => r.topics.includes(PROMOTE))
+      .filter((r) => r.topics.includes(PROMOTE) || isNew(r))
       .sort((a, b) => b.created.localeCompare(a.created))
       .slice(0, MAX_PANELS);
     const list = candidates

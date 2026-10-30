@@ -847,6 +847,11 @@ html.js .rotator__word + .rotator__word { transform: translateY(100%); }
 .more--live em { grid-column: 1; grid-row: 2; }
 .more--live i { grid-column: 2; grid-row: 1 / 4; align-self: center; }
 .more__meta { grid-column: 1; grid-row: 3; color: var(--muted); font-size: 10px; }
+/* the list can hold six repos: one line each, so the panel never overflows its height */
+.more--live a { padding: 9px 0; }
+.more--live .more__name, .more--live em { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.more--live .more__name { font-size: clamp(1.05rem, 1.5vw, 1.35rem); line-height: 1.15; }
+.more--live em { font-size: 1rem; line-height: 1.2; }
 
 /* panels added from GitHub: a graph drawn from the repo name, routed like the others */
 .g-edges line { stroke: var(--ink); stroke-width: 1.4; opacity: .16; }
