@@ -16,7 +16,7 @@
   /* ---------- Console hello ---------- */
   console.log(
     `%c Hey recruiter 👋 %c\nYou opened DevTools, so you clearly care about details. So do I.\n→ ${EMAIL}\n(psst: Ctrl/⌘ + K)`,
-    'background:#E5202E;color:#fff;font:600 14px/2 sans-serif;padding:2px 8px;border-radius:4px',
+    'background:#DC143C;color:#fff;font:600 14px/2 sans-serif;padding:2px 8px;border-radius:4px',
     'font:13px/1.6 monospace;color:inherit'
   );
 
@@ -79,7 +79,7 @@
   const metaTheme = $('meta[name="theme-color"]');
   const setTheme = (t, persist = true) => {
     root.setAttribute('data-theme', t);
-    metaTheme.setAttribute('content', t === 'dark' ? '#202327' : '#EEF1F4');
+    metaTheme.setAttribute('content', t === 'dark' ? '#061412' : '#F2F2EE');
     if (persist) try { localStorage.setItem('dkb-theme', t); } catch (e) {}
   };
   setTheme(root.getAttribute('data-theme') || 'dark', false);
@@ -213,7 +213,7 @@
         }),
       { rootMargin: '120px' }
     );
-    $$('.hero__aura, .hero__field, .hero__floor, .hero__title, .marquee, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
+    $$('.hero__aura, .hero__field, .hero__beam, .hero__floor, .hero__title, .marquee, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
   }
 
   /* ---------- No GSAP? keep everything visible and bail ---------- */
