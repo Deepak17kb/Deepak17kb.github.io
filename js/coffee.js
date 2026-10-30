@@ -61,7 +61,7 @@
       for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
       // built from module coordinates only, so it's safe to inject
       // 4-module white quiet zone, as the QR spec asks, so phone cameras lock on reliably
-      qrBox.innerHTML = `<svg viewBox="-4 -4 ${n + 8} ${n + 8}" role="img" aria-label="UPI QR code to pay ${amount ? '₹' + amount : 'any amount'}"><rect x="-4" y="-4" width="${n + 8}" height="${n + 8}" fill="#fff"/><path d="${d}" fill="#121110"/></svg>`;
+      qrBox.innerHTML = `<svg viewBox="-4 -4 ${n + 8} ${n + 8}" role="img" aria-label="UPI QR code to pay ${amount ? '₹' + amount : 'any amount'}"><rect x="-4" y="-4" width="${n + 8}" height="${n + 8}" fill="#fff"/><path d="${d}" fill="#1A1B1A"/></svg>`;
     }).catch(() => { qrBox.textContent = 'QR unavailable. Use the UPI ID below.'; });
 
   const refresh = () => {

@@ -26,7 +26,7 @@
   // One fixed seed: the same field every visit, chosen offline from 600 candidates as the closest to the reference
   // (strands sweeping down and to the right, one bright ribbon through the left of the hero).
   const SEED = 466;
-  const COLORS = { dark: '89, 150, 78', light: '163, 174, 160' };
+  const COLORS = { dark: '34, 139, 34', light: '150, 184, 155' }; // forest green
 
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, W2 = 0, H2 = 0, cols = 0, rows = 0, dpr = 1;

@@ -16,7 +16,7 @@
   /* ---------- Console hello ---------- */
   console.log(
     `%c Hey recruiter 👋 %c\nYou opened DevTools, so you clearly care about details. So do I.\n→ ${EMAIL}\n(psst: Ctrl/⌘ + K)`,
-    'background:#FF4A1C;color:#fff;font:600 14px/2 sans-serif;padding:2px 8px;border-radius:4px',
+    'background:#DC143C;color:#fff;font:600 14px/2 sans-serif;padding:2px 8px;border-radius:4px',
     'font:13px/1.6 monospace;color:inherit'
   );
 
@@ -79,7 +79,7 @@
   const metaTheme = $('meta[name="theme-color"]');
   const setTheme = (t, persist = true) => {
     root.setAttribute('data-theme', t);
-    metaTheme.setAttribute('content', t === 'dark' ? '#0F0E0D' : '#EEE9DF');
+    metaTheme.setAttribute('content', t === 'dark' ? '#1A1B1A' : '#F2F2EE');
     if (persist) try { localStorage.setItem('dkb-theme', t); } catch (e) {}
   };
   setTheme(root.getAttribute('data-theme') || 'light', false);
