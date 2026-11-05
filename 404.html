@@ -5,24 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>No path found — Deepak Kumar Behera</title>
   <meta name="robots" content="noindex" />
-  <meta name="theme-color" content="#061412" />
+  <meta name="theme-color" content="#000000" />
   <link rel="icon" href="/assets/icons/icon-192.png" />
   <script>
     (function () {
       var t = null;
       try { t = localStorage.getItem('dkb-theme'); } catch (e) {}
-      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (t !== 'light') t = 'dark';
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
   <style>
-    @font-face { font-family: 'Anton'; font-display: swap; src: url(/assets/fonts/anton-normal-latin-1.woff2) format('woff2'); }
-    @font-face { font-family: 'Instrument Serif'; font-style: italic; font-display: swap; src: url(/assets/fonts/instrument-serif-italic-latin-3.woff2) format('woff2'); }
+    @font-face { font-family: 'Cal Sans'; font-weight: 600 700; font-display: swap; src: url(/assets/fonts/cal-sans-normal-latin.woff2) format('woff2'); }
     @font-face { font-family: 'Inter Tight'; font-weight: 400 600; font-display: swap; src: url(/assets/fonts/inter-tight-normal-latin-7.woff2) format('woff2'); }
     @font-face { font-family: 'JetBrains Mono'; font-weight: 400 500; font-display: swap; src: url(/assets/fonts/jetbrains-mono-normal-latin-9.woff2) format('woff2'); }
 
-    :root { --paper: #F2F2EE; --ink: #1C1D1C; --muted: #585C57; --line: rgba(28,29,28,.16); --accent: #DC143C; --accent-text: #B3102F; --card: #FAFAF7; }
-    [data-theme="dark"] { --paper: #061412; --ink: #EDF1EC; --muted: #9FB0A8; --line: rgba(159,190,176,.16); --accent: #DC143C; --accent-text: #FF5C78; --card: #0C211C; }
+    :root { --paper: #FFFFFF; --ink: #000000; --muted: #4E5670; --line: rgba(10,16,48,.13); --accent: #1C3DEB; --accent-text: #1C3DEB; --card: #0A0F2A; --art: #FFFFFF; --hot: #D5112E; }
+    [data-theme="dark"] { --paper: #000000; --ink: #FFFFFF; --muted: #DDE0E6; --line: rgba(191,203,255,.18); --accent: #8AA2FF; --accent-text: #BFCBFF; --card: #0A0F2A; --art: #FFFFFF; --hot: #FF2A46; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
@@ -31,17 +30,15 @@
       -webkit-font-smoothing: antialiased;
     }
     main { width: min(1040px, 100%); display: grid; grid-template-columns: 1fr minmax(260px, 420px); gap: clamp(24px, 5vw, 72px); align-items: center; }
-    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: .02em; text-transform: uppercase; }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; letter-spacing: .02em; }
     .kicker { color: var(--muted); }
-    .kicker b { color: var(--accent-text); font-weight: 500; }
-    h1 { font-family: 'Anton', Impact, sans-serif; font-weight: 400; font-size: clamp(7rem, 22vw, 15rem); line-height: .82; letter-spacing: -.02em; margin: 14px 0 6px; }
-    h2 { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-weight: 400; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1; }
-    h2 span { color: var(--accent); }
+    .kicker b { font-weight: 600; }
+    h1 { font-family: 'Cal Sans', 'Inter Tight', sans-serif; font-weight: 600; font-size: clamp(7rem, 22vw, 15rem); line-height: .9; letter-spacing: -.03em; margin: 14px 0 6px; }
+    h2 { font-family: 'Cal Sans', 'Inter Tight', sans-serif; font-weight: 600; font-size: clamp(1.8rem, 4.4vw, 3rem); line-height: 1.05; letter-spacing: -.015em; }
     .log { margin: 22px 0 28px; display: grid; gap: 6px; color: var(--muted); font-size: 12px; text-transform: none; }
     .log code { color: var(--ink); word-break: break-all; }
     .log .err { color: var(--accent-text); }
-    .log .ok { color: #1A6A2D; }
-    [data-theme="dark"] .log .ok { color: #5CC072; }
+    .log .ok { font-weight: 500; }
     .log div { opacity: 0; animation: in .3s ease forwards; }
     .log div:nth-child(2) { animation-delay: .7s; } .log div:nth-child(3) { animation-delay: 1.6s; } .log div:nth-child(4) { animation-delay: 2.4s; }
     @keyframes in { to { opacity: 1; } }
@@ -50,25 +47,25 @@
       background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 500; font-size: 15px;
       transition: background-color .3s, color .3s;
     }
-    .btn:hover, .btn:focus-visible { background: var(--accent); color: #fff; }
+    .btn:hover, .btn:focus-visible { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
     .btn i { font-style: normal; }
-    :focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    :focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
     .links { margin-top: 18px; display: flex; gap: 20px; flex-wrap: wrap; }
     .links a { color: var(--ink); font-size: 14px; }
 
     figure { aspect-ratio: 1; background: var(--card); border: 1px solid var(--line); border-radius: 10px; position: relative; overflow: hidden; }
     figure svg { width: 100%; height: 100%; display: block; }
-    figcaption { position: absolute; left: 14px; bottom: 12px; color: var(--muted); }
-    .e { stroke: var(--ink); stroke-width: 2; opacity: .16; }
-    .n { fill: var(--card); stroke: var(--ink); stroke-width: 2; opacity: .7; }
-    .lbl { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: .08em; fill: var(--muted); }
-    .lbl.hot { fill: var(--accent); }
-    .try { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 330; stroke-dashoffset: 330; animation: draw 1s ease-in-out .3s forwards, fail .4s ease 1.3s forwards; }
-    .x { fill: var(--accent); font: 700 26px system-ui, sans-serif; opacity: 0; animation: in .2s ease 1.3s forwards; }
-    .home { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 520; stroke-dashoffset: 520; animation: draw 1.3s cubic-bezier(.76,0,.24,1) 1.9s forwards; }
-    .dest { fill: var(--accent); }
-    .you { fill: var(--ink); }
-    .ghost { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 6; }
+    figcaption { position: absolute; left: 14px; bottom: 12px; color: #DDE0E6; }
+    .e { stroke: var(--art); stroke-width: 2; opacity: .16; }
+    .n { fill: var(--card); stroke: var(--art); stroke-width: 2; opacity: .7; }
+    .lbl { font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: .08em; fill: #DDE0E6; }
+    .lbl.hot { fill: var(--hot); }
+    .try { fill: none; stroke: var(--hot); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 330; stroke-dashoffset: 330; animation: draw 1s ease-in-out .3s forwards, fail .4s ease 1.3s forwards; }
+    .x { fill: var(--hot); font: 700 26px system-ui, sans-serif; opacity: 0; animation: in .2s ease 1.3s forwards; }
+    .home { fill: none; stroke: var(--hot); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 520; stroke-dashoffset: 520; animation: draw 1.3s cubic-bezier(.76,0,.24,1) 1.9s forwards; }
+    .dest { fill: var(--hot); }
+    .you { fill: var(--art); }
+    .ghost { fill: none; stroke: var(--hot); stroke-width: 2; stroke-dasharray: 4 6; }
     @keyframes draw { to { stroke-dashoffset: 0; } }
     @keyframes fail { to { opacity: .25; } }
     @media (max-width: 760px) { main { grid-template-columns: 1fr; } figure { max-width: 420px; } }

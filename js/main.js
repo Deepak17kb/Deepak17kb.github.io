@@ -1,13 +1,12 @@
 /* =========================================================
    Deepak Kumar Behera — Portfolio interactions
-   GSAP + ScrollTrigger + Lenis
+   GSAP + ScrollTrigger + Lenis. One effect: the dot.
    ========================================================= */
 (() => {
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => [...c.querySelectorAll(s)];
   const root = document.documentElement;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
   const EMAIL = (window.DKB_DATA && window.DKB_DATA.email) || 'deepak7521b@gmail.com';
   let lenis = null;
@@ -16,7 +15,7 @@
   /* ---------- Console hello ---------- */
   console.log(
     `%c Hey recruiter 👋 %c\nYou opened DevTools, so you clearly care about details. So do I.\n→ ${EMAIL}\n(psst: Ctrl/⌘ + K)`,
-    'background:#DC143C;color:#fff;font:600 14px/2 sans-serif;padding:2px 8px;border-radius:4px',
+    'background:#1C3DEB;color:#fff;font:600 14px/2 sans-serif;padding:2px 8px;border-radius:4px',
     'font:13px/1.6 monospace;color:inherit'
   );
 
@@ -49,6 +48,7 @@
   const scrollToTarget = (target, opts = {}) => {
     const el = target === '#top' || target === 0 ? 0 : typeof target === 'string' ? $(target) : target;
     if (el === null) return false;
+    if (el && el.tagName === 'DETAILS') el.open = true;
     if (lenis) {
       lenis.scrollTo(el, { duration: 1.6, ...opts });
     } else {
@@ -58,28 +58,12 @@
     return true;
   };
 
-  /* ---------- Clock (IST) ---------- */
-  const clockEls = $$('[data-clock]');
-  const clockFmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
-  const tick = () => {
-    const t = clockFmt.format(new Date());
-    clockEls.forEach((el) => (el.textContent = t));
-  };
-  tick();
-  setInterval(tick, 15000);
-
-  /* ---------- Nav link hover (text swap) ---------- */
-  $$('.nav__links a').forEach((a) => {
-    a.dataset.text = a.textContent;
-    a.innerHTML = `<span>${a.textContent}</span>`;
-  });
-
   /* ---------- Theme toggle with circular reveal ---------- */
   const themeBtn = $('.theme-toggle');
   const metaTheme = $('meta[name="theme-color"]');
   const setTheme = (t, persist = true) => {
     root.setAttribute('data-theme', t);
-    metaTheme.setAttribute('content', t === 'dark' ? '#061412' : '#F2F2EE');
+    metaTheme.setAttribute('content', getComputedStyle(root).getPropertyValue('--night').trim());
     if (persist) try { localStorage.setItem('dkb-theme', t); } catch (e) {}
   };
   setTheme(root.getAttribute('data-theme') || 'dark', false);
@@ -213,7 +197,7 @@
         }),
       { rootMargin: '120px' }
     );
-    $$('.hero__aura, .hero__field, .hero__beam, .hero__floor, .hero__title, .marquee, .project__visual, .badge, .card--gold, .coffee, .portrait').forEach((el) => io.observe(el));
+    $$('.hero__field, .hero__status, .project__visual').forEach((el) => io.observe(el));
   }
 
   /* ---------- No GSAP? keep everything visible and bail ---------- */
@@ -263,12 +247,6 @@
   }
   $$('.split').forEach(split);
 
-  // Word-only split for the manifesto
-  const manifesto = $('.reveal-words');
-  if (manifesto) {
-    manifesto.innerHTML = manifesto.textContent.trim().split(/\s+/).map((w) => `<span class="word">${w}</span>`).join(' ');
-  }
-
   /* ---------- Lenis smooth scroll ---------- */
   if (!reduced && typeof window.Lenis !== 'undefined') {
     lenis = new Lenis({ duration: 1.1, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
@@ -283,10 +261,10 @@
   window.scrollTo(0, 0);
 
   /* ---------- Preloader → hero intro ---------- */
-  // The screen fades first and the last greeting dissolves over the page; a beat later "DEEPAK"
-  // decodes left to right out of random katakana and "Kumar Behera" fades in underneath.
+  // The screen fades first and the last greeting dissolves over the page; a beat later "Deepak"
+  // decodes left to right out of random katakana, the full stop drops in and "Kumar Behera" fades in underneath.
   const nameChars = $$('.hero__name .char');
-  const serifChars = $$('.hero__serif .char');
+  const subChars = $$('.hero__sub .char');
   const KANA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ';
   const PER_LETTER = 0.1; // the reference decodes ~10 letters a second
   const decode = (chars) => {
@@ -325,16 +303,18 @@
   const DECODE_AT = 0.6;
   const intro = () => {
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+    const decoded = DECODE_AT + PER_LETTER * (nameChars.length + 1);
     tl.set(nameChars, { opacity: 0 }, 0) // the name area stays empty until it decodes
       .add(decode(nameChars), DECODE_AT)
-      .from(serifChars, { opacity: 0, y: 14, duration: 0.9, stagger: 0.012, ease: 'power2.out' }, DECODE_AT + 0.4)
-      .from('.hero__meta > *', { y: 20, opacity: 0, duration: 1, stagger: 0.08 }, 0)
-      .from('.hero__cutout', { yPercent: 14, scale: 1.04, duration: 2.2 }, 0)
-      .from('.hero .fade-up', { y: 40, opacity: 0, duration: 1.2, stagger: 0.12 }, 0.4)
-      .from('.badge', { scale: 0, rotate: -180, duration: 1.4 }, 0.5)
-      .from('.nav > *', { y: -30, opacity: 0, duration: 1, stagger: 0.08 }, 0.2);
-    // the route graph behind the photo (js/hero-graph.js) builds itself when this actually plays
-    tl.call(() => document.dispatchEvent(new Event('dkb:intro')), null, 0);
+      .from('.hero__dot i', { y: () => -innerHeight * 0.45, duration: 0.95, ease: 'bounce.out' }, decoded - 0.1)
+      .from('.hero__dot i', { opacity: 0, duration: 0.1, ease: 'none' }, decoded - 0.1)
+      .from(subChars, { opacity: 0, y: 14, duration: 0.9, stagger: 0.012, ease: 'power2.out' }, DECODE_AT + 0.4)
+      .from('.hero__face', { yPercent: 6, duration: 1.8 }, 0)
+      .from('.hero__who > *', { y: 18, opacity: 0, duration: 0.9, stagger: 0.1 }, decoded)
+      .from('.hero__lede > *', { y: 24, opacity: 0, duration: 1, stagger: 0.08 }, 0.4)
+      .from('.nav > *', { y: -24, opacity: 0, duration: 0.9, stagger: 0.08 }, 0.2);
+    // the suit starts to crawl out of the tie as the full stop lands
+    tl.call(() => document.dispatchEvent(new Event('dkb:intro')), null, decoded);
     return tl;
   };
 
@@ -415,56 +395,27 @@
     window.addEventListener('keydown', skip);
   }
 
-  /* ---------- Hero role rotator ---------- */
-  const roleWords = $$('.rotator__word');
-  let ri = 0;
-  // CSS pre-hides words 2..n with translateY(100%); hand control to GSAP (y:0 + yPercent)
-  gsap.set(roleWords, { y: 0, yPercent: (i) => (i === 0 ? 0 : 100) });
-  // delayedCall rides GSAP's ticker, so it sleeps with the tab instead of piling up
-  const rotateRole = () => {
-    const cur = roleWords[ri];
-    ri = (ri + 1) % roleWords.length;
-    const next = roleWords[ri];
-    if (reduced) {
-      gsap.set(cur, { yPercent: 100 });
-      gsap.set(next, { yPercent: 0 });
-    } else {
-      gsap.to(cur, { yPercent: -100, duration: 0.8, ease: 'expo.inOut' });
-      gsap.fromTo(next, { yPercent: 100 }, { yPercent: 0, duration: 0.8, ease: 'expo.inOut' });
-    }
-    gsap.delayedCall(2.4, rotateRole);
-  };
-  gsap.delayedCall(2.4, rotateRole);
-
-  /* ---------- Scroll progress + hide nav on scroll down ---------- */
-  gsap.to('.progress span', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
+  /* ---------- Nav: clear over the hero, solid after it, out of the way while reading down ---------- */
   const nav = $('.nav');
   ScrollTrigger.create({
     start: 'top -120',
     end: 'max',
-    onUpdate: (self) => nav.classList.toggle('is-hidden', self.direction === 1 && !document.body.classList.contains('menu-open')),
+    onUpdate: (self) => {
+      nav.classList.toggle('is-hidden', self.direction === 1 && !document.body.classList.contains('menu-open'));
+      nav.classList.toggle('is-solid', self.scroll() > 120);
+    },
+    onLeaveBack: () => nav.classList.remove('is-solid', 'is-hidden'),
   });
 
   /* ---------- Active section in the nav ---------- */
-  const navWrap = $('.nav__links');
-  const navLinks = $$('a', navWrap);
+  const navLinks = $$('.nav__links a');
   const sectionIds = navLinks.map((a) => a.getAttribute('href'));
-  const rail = $('.rail');
-  const railLinks = rail ? $$('a', rail) : [];
-  const setActive = (id) => {
-    navLinks.forEach((a) => {
-      const on = a.getAttribute('href') === id;
-      a.classList.toggle('is-active', on);
-      on ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
-    });
-    navWrap.classList.toggle('has-active', !!id);
-    // the rail only shows between the hero and the footer
-    railLinks.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === id));
-    rail && rail.classList.toggle('is-on', !!id);
-  };
-  // A section is current from the moment its top crosses 55% of the screen until the next one's does.
-  // Only start lines are used: Work is pinned, so a range ending at Journey would be measured without
-  // its sideways scroll, and a fast jump could skip it. onEnter / onLeaveBack still fire when jumping past.
+  const setActive = (id) => navLinks.forEach((a) => {
+    const on = a.getAttribute('href') === id;
+    a.classList.toggle('is-active', on);
+    on ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
+  });
+  // a section is current from the moment its top crosses 55% of the screen until the next one's does
   sectionIds.forEach((id, i) => {
     const sec = $(id);
     if (!sec) return;
@@ -474,35 +425,6 @@
       onEnter: () => setActive(id),
       onLeaveBack: () => setActive(i ? sectionIds[i - 1] : null),
     });
-  });
-  // into the footer: the rail steps aside; back up into Contact: it returns
-  ScrollTrigger.create({
-    trigger: '.footer',
-    start: 'top 55%',
-    onEnter: () => rail && rail.classList.remove('is-on'),
-    onLeaveBack: () => setActive(sectionIds[sectionIds.length - 1]),
-  });
-
-  /* ---------- Marquee (velocity- and direction-reactive) ---------- */
-  const track = $('.marquee__track');
-  track.innerHTML += track.innerHTML;
-  // Start deep into the repeats so scrolling up can run it backwards
-  const marqueeTween = gsap.to(track, { xPercent: -50, duration: 28, ease: 'none', repeat: -1 }).totalTime(28 * 100);
-  const speed = { v: 1 };
-  const speedTo = gsap.quickTo(speed, 'v', { duration: 0.5, ease: 'power3', onUpdate: () => marqueeTween.timeScale(speed.v) });
-  let marqueeDir = 1;
-  const settle = gsap.delayedCall(0.12, () => speedTo(marqueeDir)).pause();
-  ScrollTrigger.create({
-    trigger: '.marquee',
-    start: 'top bottom',
-    end: 'bottom top',
-    onToggle: (self) => marqueeTween.paused(!self.isActive), // no point animating it off-screen
-    onUpdate: (self) => {
-      if (reduced) return;
-      marqueeDir = self.direction;
-      speedTo(marqueeDir * gsap.utils.clamp(1, 6, Math.abs(self.getVelocity()) / 300));
-      settle.restart(true);
-    },
   });
 
   /* ---------- Journey accordions: animate open / close ---------- */
@@ -538,55 +460,117 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => refreshSoon.restart(true));
   window.addEventListener('load', () => refreshSoon.restart(true));
 
-  if (reduced) {
-    // no horizontal scroll to rebuild; just re-measure the section triggers when GitHub adds panels
-    document.addEventListener('dkb:work-changed', () => refreshSoon.restart(true));
-    return;
-  }
+  document.addEventListener('dkb:work-changed', () => refreshSoon.restart(true));
+  if (reduced) return;
 
-  /* ---------- The page's light travels with the scroll ---------- */
-  const lightScroll = { start: 0, end: 'max', scrub: 1.2 };
-  gsap.to('.ambient__a', { yPercent: 55, xPercent: 18, ease: 'none', scrollTrigger: lightScroll });
-  gsap.to('.ambient__b', { yPercent: -60, xPercent: -30, ease: 'none', scrollTrigger: lightScroll });
-  gsap.to('.ambient__c', { yPercent: 40, xPercent: -20, ease: 'none', scrollTrigger: lightScroll });
+  const holo = window.DKB_HOLO;
+  const suit = window.DKB_SUIT;
 
-  /* ---------- Hero parallax out ---------- */
-  gsap.to('.hero__title', { yPercent: -10, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-  gsap.to('.hero__face', { yPercent: 12, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-  // the aura lags behind the photo and opens up as you scroll away
-  gsap.to('.hero__aura, .hero__marks', { yPercent: 22, scale: 1.06, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-  if (finePointer) {
-    const cutX = gsap.quickTo('.hero__cutout', 'x', { duration: 1.2, ease: 'power3' });
-    const cutY = gsap.quickTo('.hero__cutout', 'y', { duration: 1.2, ease: 'power3' });
-    // backdrop drifts the other way: cheap depth
-    // one quickTo per layer (quickTo drives a single target)
-    const auraTo = $$('.hero__aura, .hero__marks').map((el) => [
-      gsap.quickTo(el, 'x', { duration: 1.6, ease: 'power3' }),
-      gsap.quickTo(el, 'y', { duration: 1.6, ease: 'power3' }),
-    ]);
-    $('.hero').addEventListener('pointermove', (e) => {
-      const px = e.clientX / innerWidth - 0.5;
-      const py = e.clientY / innerHeight - 0.5;
-      cutX(px * -18); cutY(py * -10);
-      auraTo.forEach(([ax, ay]) => { ax(px * 22); ay(py * 14); });
-    }, { passive: true });
-  }
-
-  /* ---------- Big titles: char reveal ---------- */
-  $$('.big-title, .contact__title').forEach((title) => {
-    gsap.from($$('.char', title), {
-      yPercent: 115, rotate: 5, duration: 1.2, ease: 'expo.out', stagger: 0.025,
-      scrollTrigger: { trigger: title.closest('.work') || title, start: 'top 80%' },
+  // a hexagon that fully covers everything within `reach` of its centre
+  const hexClip = (cx, cy, reach) => {
+    const r = reach / 0.866;
+    const corners = [0, 1, 2, 3, 4, 5].map((i) => {
+      const a = Math.PI / 6 + (i * Math.PI) / 3;
+      return `${(cx + r * Math.cos(a)).toFixed(1)}px ${(cy + r * Math.sin(a)).toFixed(1)}px`;
     });
+    return `polygon(${corners.join(', ')})`;
+  };
+
+  // wrap each word of a text, leaving tags like <em> in place, so words can light up one at a time
+  const wordsOf = (el) => {
+    const walk = (node) => [...node.childNodes].forEach((c) => {
+      if (c.nodeType === 1) return walk(c);
+      if (c.nodeType !== 3) return;
+      const frag = document.createDocumentFragment();
+      c.textContent.split(/(\s+)/).forEach((part) => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) return frag.appendChild(document.createTextNode(' '));
+        const w = document.createElement('span');
+        w.className = 'w';
+        w.textContent = part;
+        frag.appendChild(w);
+      });
+      c.replaceWith(frag);
+    });
+    walk(el);
+    return $$('.w', el);
+  };
+
+  /* ---------- The opening: the suit folds into the tie, runs to the full stop, the dot opens, the words light up ---------- */
+  const opening = $('.opening');
+  const dot = $('.hero__dot');
+  const sheet = $('.statement');
+  const sheetBg = $('.statement__bg');
+  const sheetText = $('.statement__text');
+  const sheetWords = wordsOf($('.statement__text'));
+  gsap.matchMedia().add('(min-height: 521px)', () => {
+    opening.classList.add('is-bloom');
+    $('main').classList.add('has-bloom');
+    const pour = { p: 0 };
+    const grow = { p: 0 };
+    let x = 0, y = 0, far = 0;
+    const measure = () => {
+      const box = opening.getBoundingClientRect();
+      const d = dot.getBoundingClientRect();
+      x = d.left + d.width / 2 - box.left;
+      y = d.top + d.height / 2 - box.top;
+      far = Math.hypot(Math.max(x, box.width - x), Math.max(y, box.height - y)) + 2;
+    };
+    const paint = () => {
+      sheetBg.style.clipPath = hexClip(x, y, far * grow.p);
+      sheetText.style.visibility = grow.p < 1 ? 'hidden' : '';
+      if (suit) suit.retract(Math.min(1, pour.p / 0.62));
+      if (holo) holo.collapse(Math.max(0, (pour.p - 0.42) / 0.58), Math.max(0, 1 - grow.p * 7));
+    };
+    measure();
+    paint();
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: opening, start: 'top top', end: '+=300%', pin: true, scrub: true, anticipatePin: 1, refreshPriority: 1,
+        onRefresh: () => { measure(); paint(); },
+      },
+    });
+    tl.to(pour, { p: 1, duration: 0.14, ease: 'power2.in', onUpdate: paint }, 0)
+      .to('.hero__dot i', { scale: 1.7, duration: 0.05, ease: 'power2.in' }, 0.09)
+      .to(grow, { p: 1, duration: 0.27, ease: 'power3.in', onUpdate: paint }, 0.13)
+      .set('.hero', { autoAlpha: 0 }, 0.41)
+      .fromTo(sheetWords, { opacity: 0.34 }, { opacity: 1, duration: 0.02, stagger: 0.22 / sheetWords.length }, 0.42)
+      // the last 100vh: Work slides up over the colour screen, which sinks back
+      .to(sheet, { scale: 0.9, duration: 0.33 }, 0.67)
+      .to(sheetBg, { borderRadius: 36, duration: 0.33 }, 0.67);
+    return () => {
+      opening.classList.remove('is-bloom');
+      $('main').classList.remove('has-bloom');
+      sheetBg.style.clipPath = '';
+      sheetText.style.visibility = '';
+      if (holo) holo.collapse(0, 1);
+      if (suit) suit.retract(0);
+    };
   });
 
-  /* ---------- Manifesto: words light up as you scroll ---------- */
-  if (manifesto) {
-    gsap.fromTo($$('.word', manifesto), { opacity: 0.6 }, { // 0.6 keeps unread words at 4.5:1 contrast in both themes
-      opacity: 1, stagger: 0.1, ease: 'none',
-      scrollTrigger: { trigger: manifesto, start: 'top 80%', end: 'bottom 45%', scrub: true },
+  /* ---------- The cloud's path down the page ---------- */
+  if (holo) {
+    ScrollTrigger.create({ trigger: '.work', start: 'top 78%', onEnter: () => holo.go('stars'), onLeaveBack: () => holo.hero() });
+    ScrollTrigger.create({ trigger: '.about', start: 'top 60%', onEnter: () => holo.go('stars') });
+    ScrollTrigger.create({
+      trigger: '.wins__stage', start: 'top 74%', end: 'bottom 12%',
+      onToggle: (self) => holo.go(self.isActive ? 'winner' : 'stars', self.isActive ? $('.wins__stage') : null),
     });
+    // the Lab needs a clear view
+    ScrollTrigger.create({ trigger: '.lab', start: 'top 72%', onEnter: () => holo.go('stars', null, { alpha: 0 }), onLeaveBack: () => holo.go('stars') });
   }
+
+  /* ---------- ...and the dot comes back: it rises over Contact and opens one last time ---------- */
+  const contact = $('#contact');
+  const sun = { r: 0 };
+  const sunFar = () => Math.hypot(contact.offsetWidth / 2, Math.max(0, contact.offsetHeight - innerHeight * 0.16)) + 2;
+  const paintSun = () => {
+    contact.classList.toggle('is-rising', sun.r < 1);
+    contact.style.clipPath = sun.r < 1 ? hexClip(contact.offsetWidth / 2, innerHeight * 0.16, sun.r * sunFar()) : '';
+  };
+  paintSun();
+  gsap.to(sun, { r: 1, ease: 'power2.in', onUpdate: paintSun, scrollTrigger: { trigger: contact, start: 'top 74%', end: 'top top', scrub: true } });
 
   /* ---------- Stat counters ---------- */
   $$('[data-count]').forEach((el) => {
@@ -596,280 +580,195 @@
     const o = { v: 0 };
     el.textContent = o.v.toFixed(dec) + suffix; // HTML holds the real value for no-JS / reduced motion
     gsap.to(o, {
-      v: end, duration: 2.2, ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 88%' },
+      v: end, duration: 1.8, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 90%' },
       onUpdate: () => (el.textContent = o.v.toFixed(dec) + suffix),
     });
   });
 
-  // Portrait: the arch grows, the cutout pops up out of it, then the sticker slaps on
-  gsap.timeline({ scrollTrigger: { trigger: '.about__grid', start: 'top 80%' } })
-    .from('.portrait__arch', { scaleY: 0, transformOrigin: '50% 100%', duration: 1.2, ease: 'expo.inOut' })
-    .from('.portrait__cut', { yPercent: 30, autoAlpha: 0, duration: 1.4, ease: 'expo.out' }, 0.5)
-    .from('.portrait__sticker', { scale: 0, rotation: -34, duration: 1, ease: 'back.out(2)' }, 1)
-    .from('.portrait__caption', { y: 20, opacity: 0, duration: 0.8, ease: 'expo.out' }, 1.1);
-  gsap.from('.stat', { y: 50, opacity: 0, duration: 1, stagger: 0.1, ease: 'expo.out', scrollTrigger: { trigger: '.about__stats', start: 'top 85%' } });
-  gsap.from('.about__story p', { y: 30, opacity: 0, duration: 1, stagger: 0.1, ease: 'expo.out', scrollTrigger: { trigger: '.about__side', start: 'top 85%' } });
+  /* ---------- Headings: the letters climb out as they come up the screen ---------- */
+  const climb = (title) => {
+    if (!$('.char', title)) split(title);
+    gsap.from($$('.char', title), { yPercent: 118, rotate: 7, ease: 'none', stagger: 0.03, scrollTrigger: { trigger: title, start: 'top 94%', end: 'top 58%', scrub: 0.5 } });
+  };
+  $$('.big-title, .contact__title').forEach(climb);
 
-  // Pipeline: each stage lights up and the arrow to the next one draws, once
-  const pipe = $$('.pipeline li');
-  if (pipe.length) {
-    gsap.set(pipe, { opacity: 0.62 }); // dim but still 4.5:1 before it draws in
-    gsap.set(pipe.slice(1), { '--draw': 0 });
-    const tl = gsap.timeline({ scrollTrigger: { trigger: '.pipeline', start: 'top 88%', once: true } });
-    pipe.forEach((li, i) => {
-      if (i) tl.to(li, { '--draw': 1, duration: 0.35, ease: 'power2.out' });
-      tl.to(li, { opacity: 1, duration: 0.3 }, i ? '-=0.1' : 0);
+  /* ---------- Projects: title, numbers and text arrive; the visual holds still beside them ---------- */
+  const rise = (targets, trigger, vars = {}) =>
+    gsap.from(targets, { y: 22, opacity: 0, duration: 0.8, stagger: 0.06, ease: 'power3.out', scrollTrigger: { trigger, start: 'top 86%', once: true }, ...vars });
+  const countUp = (el) => {
+    const m = /^([\d,]*\.?\d+)(.*)$/.exec(el.textContent.trim());
+    if (!m) return;
+    const final = el.textContent;
+    const end = parseFloat(m[1].replace(/,/g, ''));
+    const dec = (m[1].split('.')[1] || '').length;
+    const o = { v: 0 };
+    gsap.to(o, {
+      v: end, duration: 1.5, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 84%', once: true },
+      onUpdate: () => (el.textContent = (m[1].includes(',') ? Math.round(o.v).toLocaleString('en-US') : o.v.toFixed(dec)) + m[2]),
+      onComplete: () => (el.textContent = final),
     });
-  }
-
-  // DEEPAK.EXE: rows boot in and their values type out, once
-  const exeRows = $$('.exe__rows > div');
-  if (exeRows.length) {
-    gsap.set(exeRows, { opacity: 0 });
-    const tl = gsap.timeline({ scrollTrigger: { trigger: '.exe', start: 'top 88%', once: true } });
-    exeRows.forEach((row) => {
-      const dd = $('dd', row);
-      const full = dd.textContent;
-      const o = { n: 0 };
-      tl.set(row, { opacity: 1 }, '+=0.06').to(o, {
-        n: full.length, duration: Math.min(0.5, full.length * 0.025), ease: 'none',
-        onStart: () => (dd.textContent = ''),
-        onUpdate: () => (dd.textContent = full.slice(0, Math.round(o.n))),
-      });
-    });
-  }
-
-  /* ---------- Work: horizontal scroll on desktop ---------- */
-  const mm = gsap.matchMedia();
-  mm.add('(min-width: 861px)', () => {
-    const workTrack = $('.work__track');
-    let panels = [];
-    const hudNum = $('.work__count b');
-    const hudBar = $('.work__bar i');
-    let distance = 0;
-    let lefts = [];
-    let shownIdx = -1;
-    // re-read the panels each time: js/projects.js can add some from GitHub after load
-    const measure = () => {
-      panels = $$('.project', workTrack);
-      distance = workTrack.scrollWidth - window.innerWidth;
-      lefts = panels.map((p) => p.offsetLeft);
-    };
-    measure();
-
-    const horiz = gsap.to(workTrack, {
-      x: () => -distance,
-      ease: 'none',
-      // HUD follows the eased (scrubbed) position, not the raw scroll
-      onUpdate() {
-        const p = this.progress();
-        hudBar.style.transform = `scaleX(${p})`;
-        const centre = p * distance + window.innerWidth / 2;
-        const idx = lefts.filter((l) => l <= centre).length;
-        if (idx !== shownIdx) hudNum.textContent = String((shownIdx = idx)).padStart(2, '0');
-      },
-      scrollTrigger: {
-        trigger: '.work',
-        pin: true,
-        scrub: 0.6,
-        start: 'top top',
-        end: () => '+=' + distance,
-        invalidateOnRefresh: true,
-        anticipatePin: 1,
-        refreshPriority: 1,
-        onRefreshInit: measure,
+  };
+  const staged = new WeakSet();
+  const stageProjects = () => $$('.project').forEach((project) => {
+    if (staged.has(project)) return;
+    staged.add(project);
+    const title = $('.project__title', project);
+    if (!$('.char', title)) split(title);
+    gsap.from($$('.char', title), { yPercent: 112, duration: 0.9, stagger: 0.018, ease: 'power4.out', scrollTrigger: { trigger: title, start: 'top 84%', toggleActions: 'play none none reverse' } });
+    rise($$('.project__info > *:not(.project__title)', project), project, { scrollTrigger: { trigger: $('.project__info', project), start: 'top 84%', once: true } });
+    $$('.project__metrics strong', project).forEach(countUp);
+    if (!holo) rise($('.project__visual', project), project, { y: 32 });
+    ScrollTrigger.create({
+      trigger: project, start: 'top 56%', end: 'bottom 44%',
+      onToggle: (self) => {
+        project.classList.toggle('is-active', self.isActive);
+        if (holo && self.isActive) holo.go(project.dataset.holo || 'stars', $('.project__visual', project));
       },
     });
+  });
+  stageProjects();
+  document.addEventListener('dkb:work-changed', stageProjects);
 
-    // Keyboard focus on a link in an off-screen panel: the browser tries to reveal it by scrolling the
-    // clipped pin sideways, which breaks the layout. Undo that and scroll the page to that panel instead.
-    const pin = $('.work__pin');
-    const st = horiz.scrollTrigger;
-    const keepPinStill = () => { if (pin.scrollLeft) pin.scrollLeft = 0; };
-    const revealFocused = (e) => {
-      keepPinStill();
-      const panel = e.target.closest('.panel');
-      if (!panel || !e.target.matches(':focus-visible')) return; // mouse clicks don't need the page to move
-      const want = gsap.utils.clamp(0, distance, panel.offsetLeft - (window.innerWidth - panel.offsetWidth) / 2);
-      const y = st.start + want; // the pin scrolls 1px sideways per 1px of page scroll
-      if (Math.abs(window.scrollY - y) < 8) return;
-      if (lenis) lenis.scrollTo(y, { duration: 0.8 });
-      else window.scrollTo(0, y);
-    };
-    pin.addEventListener('scroll', keepPinStill);
-    workTrack.addEventListener('focusin', revealFocused);
+  /* ---------- About: the story lights up word by word ---------- */
+  $$('.about__story p').forEach((p) => {
+    gsap.fromTo(wordsOf(p), { opacity: 0.34 }, { opacity: 1, stagger: 0.1, ease: 'none', scrollTrigger: { trigger: p, start: 'top 82%', end: 'bottom 56%', scrub: 0.4 } });
+  });
+  gsap.from('.stat', { y: 46, opacity: 0, stagger: 0.12, ease: 'none', scrollTrigger: { trigger: '.about__stats', start: 'top 90%', end: 'top 60%', scrub: 0.5 } });
 
-    const animated = new WeakSet();
-    const animatePanel = (panel) => {
-      if (animated.has(panel)) return;
-      animated.add(panel);
-      gsap.fromTo($('.project__visual', panel), { xPercent: 18, rotate: 4 }, {
-        xPercent: -8, rotate: -2, ease: 'none',
-        scrollTrigger: { trigger: panel, containerAnimation: horiz, start: 'left right', end: 'right left', scrub: true },
+  /* ---------- Journey: a line draws down the years ---------- */
+  gsap.fromTo('.rows', { '--grow': 0 }, { '--grow': 1, ease: 'none', scrollTrigger: { trigger: '.rows', start: 'top 72%', end: 'bottom 62%', scrub: 0.5 } });
+  gsap.from('.row', { x: -36, opacity: 0, stagger: 0.12, ease: 'none', scrollTrigger: { trigger: '.rows', start: 'top 86%', end: 'bottom 74%', scrub: 0.5 } });
+  gsap.from('.skills__col', { y: 36, opacity: 0, stagger: 0.1, ease: 'none', scrollTrigger: { trigger: '.skills', start: 'top 92%', end: 'top 66%', scrub: 0.5 } });
+
+  /* ---------- Wins slide in from either side ---------- */
+  $$('.win').forEach((win, i) => {
+    gsap.from(win, { x: i % 2 ? 90 : -90, opacity: 0, ease: 'none', scrollTrigger: { trigger: win, start: 'top 96%', end: 'top 74%', scrub: 0.5 } });
+  });
+  gsap.from('.certs li', { x: 40, opacity: 0, stagger: 0.08, ease: 'none', scrollTrigger: { trigger: '.certs', start: 'top 90%', end: 'center 60%', scrub: 0.5 } });
+
+  /* ---------- The Lab grows up to full size ---------- */
+  gsap.from('.lab__app', { scale: 0.84, y: 60, ease: 'none', scrollTrigger: { trigger: '.lab__app', start: 'top 98%', end: 'top 34%', scrub: 0.5 } });
+
+  /* ---------- Giant words: two rows slide past each other as they cross the screen ---------- */
+  $$('.marquee__row').forEach((row, k) => {
+    gsap.fromTo(row, { xPercent: k ? -18 : 0 }, { xPercent: k ? 0 : -22, ease: 'none', scrollTrigger: { trigger: '.marquee', start: 'top bottom', end: 'bottom top', scrub: 0.4 } });
+  });
+
+  /* ---------- More builds: the two lists become one deck of cards that bends past as you scroll ---------- */
+  const after = $('.work__after');
+  let rebuildDeck = null;
+  gsap.matchMedia().add('(min-width: 861px) and (min-height: 600px)', () => {
+    let deck = null, tween = null;
+    const make = () => {
+      if (tween) { tween.scrollTrigger.kill(); tween.kill(); }
+      if (deck) deck.remove();
+      const items = $$('.more a', after).map((a) => ({
+        href: a.href, name: $('.more__name', a)?.textContent || '', blurb: $('em', a)?.textContent || '',
+        meta: $('.more__meta', a)?.textContent || '', live: !!a.closest('.more--live'),
+      }));
+      if (items.length < 3) { root.classList.remove('has-deck'); return; }
+      deck = document.createElement('div');
+      deck.className = 'deck';
+      deck.innerHTML = `<div class="deck__head"><h3 class="work__sub">More I've built</h3><p class="deck__hint">${items.length} more projects, keep scrolling</p></div><div class="deck__track"></div>`;
+      const track = $('.deck__track', deck);
+      items.forEach((it) => {
+        const a = document.createElement('a');
+        a.className = 'deck__card' + (it.live ? ' is-live' : '');
+        a.href = it.href; a.target = '_blank'; a.rel = 'noopener';
+        a.innerHTML = '<span class="deck__kicker"></span><span class="deck__name"></span><span class="deck__foot"><span></span><i aria-hidden="true">↗</i></span>';
+        $('.deck__kicker', a).textContent = it.live ? `Live from GitHub${it.meta ? ' · ' + it.meta.replace(/^[^·]*·\s*/, '') : ''}` : 'Also built';
+        $('.deck__name', a).textContent = it.name;
+        $('.deck__foot span', a).textContent = it.blurb;
+        track.appendChild(a);
       });
-      gsap.from($$('.project__title, .project__tag, .project__metrics li, .tags, .project__links', panel), {
-        y: 60, opacity: 0, stagger: 0.06, duration: 1, ease: 'expo.out',
-        scrollTrigger: { trigger: panel, containerAnimation: horiz, start: 'left 65%' },
+      after.appendChild(deck);
+      root.classList.add('has-deck');
+      const cards = $$('.deck__card', track);
+      let lefts = [], width = 0;
+      const measure = () => {
+        width = cards[0].offsetWidth;
+        const pad = innerWidth / 2 - width / 2; // the first card starts in the middle, the last one ends there
+        track.style.paddingLeft = track.style.paddingRight = pad + 'px';
+        lefts = cards.map((c) => c.offsetLeft);
+      };
+      // each card turns away and sinks back the further it is from the middle, as if the row ran round a drum
+      const bend = () => {
+        const x = gsap.getProperty(track, 'x'), mid = innerWidth / 2;
+        cards.forEach((c, k) => {
+          const d = (x + lefts[k] + width / 2 - mid) / mid;
+          c.style.transform = `rotateY(${(-d * 32).toFixed(2)}deg) translateZ(${(-Math.min(1.4, Math.abs(d)) * 170).toFixed(1)}px)`;
+          c.style.opacity = (1 - Math.min(0.7, Math.abs(d) * 0.45)).toFixed(3);
+          c.classList.toggle('is-front', Math.abs(d) < 0.2);
+        });
+      };
+      measure();
+      tween = gsap.to(track, {
+        x: () => -(track.scrollWidth - innerWidth), ease: 'none', onUpdate: bend,
+        scrollTrigger: { trigger: deck, start: 'top top', end: () => '+=' + Math.max(innerHeight, track.scrollWidth - innerWidth), pin: true, scrub: 0.6, invalidateOnRefresh: true, refreshPriority: 1, onRefresh: () => { measure(); bend(); } },
       });
+      bend();
     };
-    panels.forEach(animatePanel);
-    // new panels from GitHub: animate them like the rest, then re-measure the scroll distance
-    const onWorkChanged = () => {
-      $$('.project', workTrack).forEach(animatePanel);
-      ScrollTrigger.refresh();
-    };
-    document.addEventListener('dkb:work-changed', onWorkChanged);
-
+    make();
+    rebuildDeck = () => { make(); ScrollTrigger.refresh(); };
     return () => {
-      pin.removeEventListener('scroll', keepPinStill);
-      workTrack.removeEventListener('focusin', revealFocused);
-      document.removeEventListener('dkb:work-changed', onWorkChanged);
+      if (tween) { tween.scrollTrigger.kill(); tween.kill(); }
+      if (deck) deck.remove();
+      root.classList.remove('has-deck');
+      rebuildDeck = null;
     };
   });
-  mm.add('(max-width: 860px)', () => {
-    const animated = new WeakSet();
-    const animatePanel = (panel) => {
-      if (animated.has(panel)) return;
-      animated.add(panel);
-      gsap.from($$('.project__visual, .project__title, .project__tag, .project__metrics, .tags, .project__links', panel), {
-        y: 50, opacity: 0, stagger: 0.07, duration: 1, ease: 'expo.out',
-        scrollTrigger: { trigger: panel, start: 'top 80%' },
+  document.addEventListener('dkb:repos', () => rebuildDeck && rebuildDeck());
+
+  /* ---------- Certifications: a ring of cards that turns one card per step as you scroll ---------- */
+  gsap.matchMedia().add('(min-width: 861px) and (min-height: 600px)', () => {
+    const certs = $('.certs');
+    const list = $$('li', certs);
+    if (list.length < 3) return;
+    const ring = document.createElement('div');
+    ring.className = 'ring';
+    ring.innerHTML = `<div class="ring__head"><span class="ring__count">${String(list.length).padStart(2, '0')}</span><h3 class="work__sub">Certifications</h3></div><div class="ring__spin"></div>`;
+    const spin = $('.ring__spin', ring);
+    list.forEach((li) => {
+      const link = $('a', li);
+      const card = document.createElement(link ? 'a' : 'div');
+      card.className = 'ring__card';
+      if (link) { card.href = link.href; card.target = '_blank'; card.rel = 'noopener'; }
+      const by = ($('.certs__by', li)?.textContent || '').split('·');
+      card.innerHTML = '<span class="ring__by"></span><span class="ring__name"></span><span class="ring__foot"><span></span><i aria-hidden="true"></i></span>';
+      $('.ring__by', card).textContent = by[0].trim();
+      $('.ring__name', card).textContent = ($('.certs__name', li)?.textContent || '').replace('↗', '').trim();
+      $('.ring__foot span', card).textContent = by.slice(1).join('·').trim();
+      $('.ring__foot i', card).textContent = link ? 'View ↗' : '';
+      spin.appendChild(card);
+    });
+    certs.appendChild(ring);
+    root.classList.add('has-ring');
+    const cards = $$('.ring__card', spin), n = cards.length, step = 360 / n;
+    let reach = 0;
+    const place = () => {
+      const w = cards[0].offsetWidth;
+      reach = w / 2 / Math.tan(Math.PI / n) + w * 0.16;
+      cards.forEach((c, k) => { c.style.transform = `rotateY(${k * step}deg) translateZ(${reach.toFixed(1)}px)`; });
+    };
+    const turn = { a: 0 };
+    const show = () => {
+      spin.style.transform = `translateZ(${(-reach).toFixed(1)}px) rotateX(-9deg) rotateY(${turn.a.toFixed(2)}deg)`;
+      cards.forEach((c, k) => {
+        const facing = Math.cos(((k * step + turn.a) * Math.PI) / 180);
+        c.style.opacity = (0.3 + 0.7 * Math.max(0, facing)).toFixed(3);
+        c.classList.toggle('is-front', facing > Math.cos((step / 2) * (Math.PI / 180)));
       });
     };
-    $$('.project').forEach(animatePanel);
-    const onWorkChanged = () => {
-      $$('.project').forEach(animatePanel);
-      ScrollTrigger.refresh();
-    };
-    document.addEventListener('dkb:work-changed', onWorkChanged);
-    return () => document.removeEventListener('dkb:work-changed', onWorkChanged);
+    place();
+    show();
+    const tween = gsap.to(turn, {
+      a: -(360 - step), ease: 'none', onUpdate: show,
+      scrollTrigger: { trigger: ring, start: 'top top', end: () => '+=' + innerHeight * 1.6, pin: true, scrub: 0.6, refreshPriority: 1, onRefresh: () => { place(); show(); } },
+    });
+    return () => { tween.scrollTrigger.kill(); tween.kill(); ring.remove(); root.classList.remove('has-ring'); };
   });
 
-  /* ---------- Generic staggered reveals ---------- */
-  const reveal = (selector, trigger, vars = {}) =>
-    gsap.from(selector, { y: 60, opacity: 0, duration: 1.1, stagger: 0.1, ease: 'expo.out', scrollTrigger: { trigger, start: 'top 85%' }, ...vars });
-  reveal('.row', '.rows');
-  reveal('.skills__col', '.skills');
-  reveal('.card', '.cards', { y: 120, rotate: 3, stagger: 0.12 });
-  reveal('.certs li', '.certs');
-  reveal('.lab__lede', '.lab__head');
-  reveal('.lab__app', '.lab__app', { y: 90 });
-  reveal('.shell__intro > *, .term', '.shell', { stagger: 0.08 });
-  reveal('.email, .form label, .form .btn, .socials', '.contact__grid', { stagger: 0.07 });
-  reveal('.coffee', '.contact__grid', { y: 100, rotate: -3 });
-
-  gsap.from('.footer__name', { yPercent: 60, opacity: 0, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '.footer', start: 'top 85%' } });
-
-  /* ---------- Pointer effects (desktop only) ---------- */
-  if (!finePointer) return;
-  root.classList.add('has-cursor');
-
-  // A soft light that follows the pointer
-  const spotX = gsap.quickTo('.ambient__spot', 'x', { duration: 1.6, ease: 'power3' });
-  const spotY = gsap.quickTo('.ambient__spot', 'y', { duration: 1.6, ease: 'power3' });
-  window.addEventListener('pointermove', (e) => { spotX(e.clientX); spotY(e.clientY); }, { passive: true });
-
-  // Cached rects go stale when the page scrolls
-  let scrollEpoch = 0;
-  window.addEventListener('scroll', () => scrollEpoch++, { passive: true });
-
-  // Custom cursor
-  const cursor = $('.cursor');
-  const dot = $('.cursor__dot');
-  const ring = $('.cursor__ring');
-  const label = $('.cursor__label');
-  const dx = gsap.quickTo(dot, 'x', { duration: 0.1 });
-  const dy = gsap.quickTo(dot, 'y', { duration: 0.1 });
-  const rx = gsap.quickTo(ring, 'x', { duration: 0.45, ease: 'power3' });
-  const ry = gsap.quickTo(ring, 'y', { duration: 0.45, ease: 'power3' });
-  let cursorSeen = false;
-  window.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse') return;
-    if (!cursorSeen) {
-      cursorSeen = true;
-      gsap.set([dot, ring], { x: e.clientX, y: e.clientY });
-      cursor.classList.remove('is-hidden');
-    }
-    dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY);
-  }, { passive: true });
-  document.addEventListener('mouseleave', () => cursor.classList.add('is-hidden'));
-  document.addEventListener('mouseenter', () => cursor.classList.remove('is-hidden'));
-
-  document.addEventListener('mouseover', (e) => {
-    const native = e.target.closest('[data-cursor-native]');
-    cursor.classList.toggle('is-native', !!native);
-    if (native) return;
-    const labelled = e.target.closest('[data-cursor]');
-    const interactive = e.target.closest('a, button, summary, input, textarea, [role="option"]');
-    if (labelled && !(interactive && labelled.contains(interactive) && interactive !== labelled)) {
-      label.textContent = labelled.dataset.cursor;
-      cursor.classList.add('is-label');
-      cursor.classList.remove('is-hover');
-    } else if (interactive) {
-      cursor.classList.add('is-hover');
-      cursor.classList.remove('is-label');
-    } else {
-      cursor.classList.remove('is-hover', 'is-label');
-    }
-  });
-
-  // Magnetic elements: measure the resting centre once per hover, not on every move
-  $$('[data-magnetic]').forEach((el) => {
-    const xTo = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3' });
-    const yTo = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3' });
-    let cx = 0, cy = 0, epoch = -1, back;
-    const measure = () => {
-      const r = el.getBoundingClientRect();
-      cx = r.left + r.width / 2 - gsap.getProperty(el, 'x');
-      cy = r.top + r.height / 2 - gsap.getProperty(el, 'y');
-      epoch = scrollEpoch;
-    };
-    el.addEventListener('pointerenter', () => { back && back.kill(); measure(); });
-    el.addEventListener('pointermove', (e) => {
-      if (epoch !== scrollEpoch) measure();
-      xTo((e.clientX - cx) * 0.35);
-      yTo((e.clientY - cy) * 0.35);
-    });
-    el.addEventListener('pointerleave', () => {
-      back = gsap.to(el, { x: 0, y: 0, duration: 1, ease: 'elastic.out(1, 0.35)', overwrite: 'auto' });
-    });
-  });
-
-  // Footer name: letters near the cursor lift, like keys being pressed in reverse
-  const footName = $('.footer__name');
-  const letters = footName ? $$('.fl', footName) : [];
-  if (letters.length) {
-    const lift = letters.map((l) => gsap.quickTo(l, 'yPercent', { duration: 0.5, ease: 'power3' }));
-    let centres = [];
-    const measure = () => (centres = letters.map((l) => { const r = l.getBoundingClientRect(); return r.left + r.width / 2; }));
-    footName.addEventListener('pointerenter', measure);
-    footName.addEventListener('pointermove', (e) => {
-      if (!centres.length) measure();
-      const span = innerWidth * 0.16;
-      centres.forEach((c, i) => lift[i](-14 * Math.max(0, 1 - Math.abs(e.clientX - c) / span)));
-    });
-    footName.addEventListener('pointerleave', () => lift.forEach((f) => f(0)));
-  }
-
-  // 3D tilt + glare: one reusable tween per axis instead of a new tween per mousemove
-  $$('[data-tilt]').forEach((el) => {
-    gsap.set(el, { transformPerspective: 900 });
-    const rxTo = gsap.quickTo(el, 'rotateX', { duration: 0.6, ease: 'power3' });
-    const ryTo = gsap.quickTo(el, 'rotateY', { duration: 0.6, ease: 'power3' });
-    let rect = null, epoch = -1, back;
-    el.addEventListener('pointerenter', () => { back && back.kill(); rect = null; });
-    el.addEventListener('pointermove', (e) => {
-      if (!rect || epoch !== scrollEpoch) { rect = el.getBoundingClientRect(); epoch = scrollEpoch; }
-      const px = (e.clientX - rect.left) / rect.width;
-      const py = (e.clientY - rect.top) / rect.height;
-      ryTo((px - 0.5) * 14);
-      rxTo((0.5 - py) * 14);
-      el.style.setProperty('--mx', px * 100 + '%');
-      el.style.setProperty('--my', py * 100 + '%');
-    });
-    el.addEventListener('pointerleave', () => {
-      back = gsap.to(el, { rotateX: 0, rotateY: 0, duration: 1, ease: 'elastic.out(1, 0.4)', overwrite: 'auto' });
-    });
-  });
+  rise('.contact__left > *', '.contact__grid');
+  rise('.coffee', '.contact__grid');
 })();

@@ -31,7 +31,7 @@ window.DKB_DATA = {
     { id: 'about', label: 'About' },
     { id: 'work', label: 'Selected work' },
     { id: 'journey', label: 'Journey' },
-    { id: 'trophies', label: 'Trophies' },
+    { id: 'trophies', label: 'Wins' },
     { id: 'lab', label: 'Path Lab' },
     { id: 'terminal', label: 'Terminal' },
     { id: 'contact', label: 'Contact' },
@@ -39,7 +39,10 @@ window.DKB_DATA = {
 
   // Hand-written projects. `repo` (or a github.com `code` link) ties an entry to its GitHub repo,
   // so js/projects.js doesn't list that repo a second time.
+  // public repos to leave off the site; anything else published still appears by itself
+  hiddenRepos: ['La_Perla', 'Movie-Dataset-Exploratory-Data-Analysis-EDA-', 'Rex-Gesture-Game'],
   projects: [
+    { key: 'darklytics', name: 'Darklytics', repo: 'quickcommerce-mi', featured: true, when: 'Oct 2026', metrics: ['610,789 price, stock and ETA rows', '13 models and decision tools', '21 data contracts'], what: 'Quick-commerce market intelligence across four apps, in one live storefront', stack: 'Python · pandas · LightGBM · DuckDB · JavaScript', demo: 'https://deepak17kb.github.io/quickcommerce-mi/', code: 'https://github.com/Deepak17kb/quickcommerce-mi' },
     { key: 'broadbridge', name: 'BroadBridge', featured: true, when: 'Sep 2026', metrics: ['239 tests passing', '9 what-if levers', '12 ranked-action rules'], what: 'AI wealth navigator, Monte Carlo goal odds', stack: 'TypeScript · React · Node · Claude/Groq', demo: 'https://deepak17kb.github.io/BroadBridge/', code: 'https://github.com/Deepak17kb/BroadBridge' },
     { key: 'upi', name: 'UPI Risk Desk', featured: true, team: true, when: 'Sep 2026', metrics: ['20K UPI payments analysed', '121 dispute rings found', '5 AI risk agents'], what: 'Fraud-ring detection, Best Pipeline @ AgentIQ Datathon', stack: 'Python · pandas · NetworkX · SQLite · Claude', demo: 'https://adityashukla2615.github.io/upi-risk-desk/outputs/upi_risk_desk.html?v=2', code: 'https://github.com/Deepak17kb/upi-risk-desk' },
     { key: 'saferoute', name: 'NER SafeRoute', featured: true, when: 'Sep 2026 · SIH', metrics: ['87.1% balanced accuracy (risk model)', '3,447 road segments scored', '8 NE states'], what: 'Hazard-aware truck routing for Northeast India', stack: 'FastAPI · React · Leaflet · PostGIS · scikit-learn', demo: 'https://ner-safe-route-psi.vercel.app/', code: 'https://github.com/Deepak17kb/NER-SafeRoute' },

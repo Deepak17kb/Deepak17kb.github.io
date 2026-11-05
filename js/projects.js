@@ -3,7 +3,7 @@
    - a repo created in the last 90 days (with a description or a homepage) gets its own panel in
      Selected Work, and so does any repo tagged `portfolio-project`
    - every other public repo that isn't on the page yet goes in "Fresh on GitHub"
-   - tag a repo `portfolio-hide` to keep it off the site
+   - tag a repo `portfolio-hide`, or name it in hiddenRepos in js/data.js, to keep it off the site
    Hand-written entries in js/data.js always win: a repo they cover is never listed twice.
    Cached in localStorage (the public API allows 60 calls/hour). If GitHub can't be reached,
    the page shows only what's in the HTML.
@@ -19,11 +19,11 @@
   const MAX_PANELS = 3;
   const MAX_LIST = 6;
   const NEW_DAYS = 90; // a repo this young counts as a new project
-  const SKIP = new Set([USER.toLowerCase(), `${USER}.github.io`.toLowerCase()]); // profile README, this site
+  const SKIP = new Set([USER, `${USER}.github.io`, ...(D.hiddenRepos || [])].map((n) => n.toLowerCase())); // profile README, this site, the ones left off on purpose
   const QUIET_TOPICS = new Set([PROMOTE, HIDE, 'portfolio', 'github-pages']);
 
-  const track = document.querySelector('.work__track');
-  const outro = document.querySelector('.panel--outro');
+  const track = document.querySelector('.work__list');
+  const outro = document.querySelector('.work__after');
   const live = document.querySelector('.outro__live');
   if (!track || !outro || !live) return;
 
@@ -85,7 +85,7 @@
     return m ? m[1] : s;
   };
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-  // "Qcom: quick-commerce market intelligence…" → title "Qcom", tagline "Quick-commerce market intelligence…"
+  // "Darklytics: quick-commerce market intelligence…" → title "Darklytics", tagline "Quick-commerce market intelligence…"
   const describe = (r) => {
     const m = /^([^:—–]{2,28})\s*[:—–]\s+(.+)$/.exec(r.description);
     return m
@@ -118,91 +118,29 @@
     return el;
   };
 
-  /* ---------- A graph drawn from the repo name, in the style of the other project visuals ---------- */
-  const hash = (s) => [...s].reduce((a, c) => Math.imul(a ^ c.charCodeAt(0), 16777619), 2166136261);
-  const rng = (seed) => () => {
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  function graphSvg(name) {
-    const rand = rng(hash(name));
-    const pts = [];
-    for (let guard = 0; pts.length < 22 && guard < 3000; guard++) {
-      const p = [40 + rand() * 320, 60 + rand() * 280];
-      if (pts.every((q) => Math.hypot(p[0] - q[0], p[1] - q[1]) > 50)) pts.push(p);
-    }
-    // every node links to its three nearest neighbours
-    const edges = new Map();
-    const adj = pts.map(() => []);
-    pts.forEach((p, i) => {
-      pts.map((q, j) => [j, Math.hypot(p[0] - q[0], p[1] - q[1])])
-        .filter(([j]) => j !== i)
-        .sort((a, b) => a[1] - b[1])
-        .slice(0, 3)
-        .forEach(([j, w]) => {
-          const k = Math.min(i, j) + '-' + Math.max(i, j);
-          if (edges.has(k)) return;
-          edges.set(k, [i, j]);
-          adj[i].push([j, w]);
-          adj[j].push([i, w]);
-        });
-    });
-    // Dijkstra from the bottom-left node to the top-right one
-    const start = pts.reduce((b, p, i) => (p[0] - p[1] < pts[b][0] - pts[b][1] ? i : b), 0);
-    const end = pts.reduce((b, p, i) => (p[0] - p[1] > pts[b][0] - pts[b][1] ? i : b), 0);
-    const dist = pts.map(() => Infinity);
-    const prev = pts.map(() => -1);
-    const done = pts.map(() => false);
-    dist[start] = 0;
-    for (;;) {
-      let u = -1;
-      dist.forEach((d, i) => { if (!done[i] && d < Infinity && (u < 0 || d < dist[u])) u = i; });
-      if (u < 0) break;
-      done[u] = true;
-      adj[u].forEach(([v, w]) => { if (dist[u] + w < dist[v]) { dist[v] = dist[u] + w; prev[v] = u; } });
-    }
-    const route = [];
-    if (dist[end] < Infinity) for (let v = end; v !== -1; v = prev[v]) route.unshift(v);
-    const f = (n) => n.toFixed(1);
-    const xy = (i) => `${f(pts[i][0])},${f(pts[i][1])}`;
-    return `<svg viewBox="0 0 400 400" aria-hidden="true">
-      <g class="g-edges">${[...edges.values()].map(([a, b]) => `<line x1="${f(pts[a][0])}" y1="${f(pts[a][1])}" x2="${f(pts[b][0])}" y2="${f(pts[b][1])}"/>`).join('')}</g>
-      ${route.length > 1 ? `<polyline class="g-path" pathLength="1" points="${route.map(xy).join(' ')}"/>` : ''}
-      <g class="g-nodes">${pts.map((p, i) => (i === start || i === end ? '' : `<circle cx="${f(p[0])}" cy="${f(p[1])}" r="5"/>`)).join('')}</g>
-      <circle class="g-start" cx="${f(pts[start][0])}" cy="${f(pts[start][1])}" r="9"/>
-      <circle class="g-end" cx="${f(pts[end][0])}" cy="${f(pts[end][1])}" r="11"/>
-    </svg>`;
-  }
-
   /* ---------- Rendering ---------- */
   const panelFor = (r, num) => {
     const { title, tag } = describe(r);
     const metrics = [[r.language || '—', 'main language'], [month(r.created), 'repo created'], [since(r.pushed), 'since last push']];
     if (r.stars) metrics.push([String(r.stars), r.stars === 1 ? 'star' : 'stars']);
-    const visual = h('div', { class: 'project__visual visual--auto', 'data-tilt': '' }, [
-      h('span', { class: 'visual__caption mono', text: 'graph drawn from the repo name' }),
+    // no drawing to show for a repo that just landed: the tile says what it's made of
+    const visual = h('div', { class: 'project__visual visual--auto' }, [
+      h('span', { class: 'auto__lang', text: r.language || 'New repo' }),
+      h('span', { class: 'auto__note', text: `Live from GitHub · ${pushedText(r.pushed)}` }),
     ]);
-    visual.insertAdjacentHTML('afterbegin', graphSvg(r.name));
-    return h('article', { class: 'panel project project--auto', 'data-cursor': 'Explore', 'data-repo': r.name }, [
-      h('div', { class: 'project__head' }, [
-        h('span', { class: 'project__num', text: String(num).padStart(2, '0') }),
-        h('span', { class: 'project__year mono', text: [month(r.created), r.language, 'Live from GitHub'].filter(Boolean).join(' · ') }),
-      ]),
-      h('div', { class: 'project__body' }, [
-        h('div', { class: 'project__info' }, [
-          h('h3', { class: 'project__title', text: title }),
-          tag && h('p', { class: 'project__tag serif', text: tag }),
-          h('ul', { class: 'project__metrics' }, metrics.map(([v, k]) => h('li', {}, [h('strong', { text: v }), h('span', { text: k })]))),
-          h('div', { class: 'tags' }, topicTags(r).map((t) => h('span', { text: t }))),
-          h('div', { class: 'project__links' }, [
-            r.homepage && h('a', { href: r.homepage, target: '_blank', rel: 'noopener', class: 'link-arrow', 'data-magnetic': '' }, ['Live demo ', h('i', { text: '↗' })]),
-            h('a', { href: r.url, target: '_blank', rel: 'noopener', class: 'link-arrow', 'data-magnetic': '' }, ['GitHub ', h('i', { text: '↗' })]),
-          ]),
+    return h('article', { class: 'project project--auto', 'data-repo': r.name }, [
+      h('div', { class: 'project__info' }, [
+        h('p', { class: 'project__meta' }, [h('span', { class: 'project__num', text: String(num).padStart(2, '0') }), ` ${month(r.created)} · Live from GitHub`]),
+        h('h3', { class: 'project__title', text: title }),
+        tag && h('p', { class: 'project__tag', text: tag }),
+        h('ul', { class: 'project__metrics' }, metrics.map(([v, k]) => h('li', {}, [h('strong', { text: v }), h('span', { text: k })]))),
+        h('div', { class: 'tags' }, topicTags(r).filter((t) => t !== r.language).map((t) => h('span', { text: t }))),
+        h('div', { class: 'project__links' }, [
+          r.homepage && h('a', { href: r.homepage, target: '_blank', rel: 'noopener', class: 'link-arrow' }, ['Live demo ', h('i', { text: '↗' })]),
+          h('a', { href: r.url, target: '_blank', rel: 'noopener', class: 'link-arrow' }, ['GitHub ', h('i', { text: '↗' })]),
         ]),
-        visual,
       ]),
+      visual,
     ]);
   };
 
@@ -211,9 +149,9 @@
     return h('li', {}, [
       h('a', { href: r.homepage || r.url, target: '_blank', rel: 'noopener' }, [
         h('span', { class: 'more__name', text: describe(r).title }),
-        h('em', { class: 'serif', text: blurb }),
+        h('em', { text: blurb }),
         h('i', { text: '↗' }),
-        h('span', { class: 'more__meta mono', text: [r.language, pushedText(r.pushed)].filter(Boolean).join(' · ') }),
+        h('span', { class: 'more__meta', text: [r.language, pushedText(r.pushed)].filter(Boolean).join(' · ') }),
       ]),
     ]);
   };
@@ -231,9 +169,8 @@
 
   let shownSig = null;
   const handmade = track.querySelectorAll('.project:not(.project--auto)').length;
-  const totalEl = document.querySelector('[data-work-total]');
 
-  // returns true when the set of panels changed (the horizontal scroll needs re-measuring)
+  // returns true when the set of panels changed (the scroll triggers need re-measuring)
   const render = (repos) => {
     const { panels, list, total } = pick(repos);
     const sig = JSON.stringify(panels);
@@ -241,7 +178,6 @@
     if (panelsChanged) {
       track.querySelectorAll('.project--auto').forEach((el) => el.remove());
       panels.forEach((r, i) => outro.before(panelFor(r, handmade + i + 1)));
-      if (totalEl) totalEl.textContent = String(handmade + panels.length).padStart(2, '0');
       syncData(panels);
       shownSig = sig;
     }
@@ -263,6 +199,7 @@
       const work = document.getElementById('work');
       if (work && work.getBoundingClientRect().top < window.innerHeight) return;
       if (render(repos)) document.dispatchEvent(new Event('dkb:work-changed'));
+      document.dispatchEvent(new Event('dkb:repos'));
     })
     .catch(() => {}); // offline or rate-limited: keep the cached or hand-written projects
 })();
