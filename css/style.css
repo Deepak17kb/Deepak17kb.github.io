@@ -452,7 +452,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
 }
 .nav__route svg { fill: none; stroke: currentColor; stroke-width: 1.8; }
 .progress { position: fixed; z-index: 61; left: 0; right: 0; top: 0; height: 2px; pointer-events: none; }
-.progress i { display: block; height: 100%; background: var(--red); transform-origin: 0 50%; transform: scaleX(0); }
+.progress i { display: block; height: 100%; background: var(--red); transform-origin: 0 50%; transform: scaleX(0); will-change: transform; }
 .nav[data-tone="light"] ~ .progress i { background: var(--red-d); }
 .nav[data-tone="blue"] ~ .progress i, .nav[data-tone="sky"] ~ .progress i { background: #fff; }
 @media (min-width: 900px) and (min-height: 541px), (min-width: 900px) and (orientation: portrait) { .progress { display: none; } }
@@ -501,7 +501,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   inset: 0;
   border-radius: 50%;
   border: 2px solid currentColor;
-  animation: ping 1.8s var(--ease) infinite;
+  animation: ping 1.8s var(--ease) 3; /* restarted at each station (js/app.js), then it rests */
 }
 @keyframes ping {
   0% { transform: scale(.5); opacity: .9; }
@@ -704,6 +704,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   background: var(--red);
   animation: beacon 2.2s var(--ease) infinite;
 }
+html.js .hero:not(.is-near) .hero__status i::after { animation-play-state: paused; }
 @keyframes beacon {
   0% { transform: scale(1); opacity: .7; }
   80%, 100% { transform: scale(3.4); opacity: 0; }
@@ -901,7 +902,8 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   .rail::-webkit-scrollbar { display: none; }
   .rail__track { transform-style: flat; will-change: auto; }
   /* the posters fit beside the line's lane, centre in the space right of it, and pass behind the lane like on computers */
-  .rail { scroll-padding-left: var(--lane); clip-path: inset(-40% 0 -40% var(--lane)); }
+  .rail { margin-left: var(--lane); }
+  .rail__track { padding-left: calc(var(--pad-l) - var(--lane)); }
   .poster { --ph: min(112vw, 70svh, 520px); scroll-snap-align: center; will-change: auto; perspective: 900px; }
   .poster--more { width: max(calc(var(--ph) * .72), min(calc(var(--ph) * 1.02), 88vw)); }
   .more a { padding: 7px 0; }
@@ -977,15 +979,27 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
 .about__sky { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.6s ease; }
 .about__sky.is-painted { opacity: 1; }
 /* a small soft-edged hole, scaled up; moving it is a transform, nothing repaints */
-.about__veil {
+/* the torch's wrapper carries the wander (a looping animation the GPU runs); it has to be a real box, or the
+   browser can't hand its animation to the GPU and re-plans the page's layers every frame */
+.about__torch {
   position: absolute;
   z-index: -1;
   left: -400px;
   top: -400px;
   width: 800px;
   height: 800px;
-  background: radial-gradient(circle, rgba(3, 4, 10, 0) 0, rgba(3, 4, 10, 0) 34px, rgba(3, 4, 10, .5) 62px, rgba(3, 4, 10, .84) 104px, rgba(3, 4, 10, .88) 400px);
-  transform: translate3d(70vw, 40vh, 0) scale(4);
+  transform: translate3d(70vw, 40vh, 0);
+  pointer-events: none;
+  will-change: transform;
+}
+.about__veil {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 800px;
+  height: 800px;
+  /* its gradient is drawn into the canvas once (js/app.js); the GPU stretches and slides that small texture */
+  transform: scale(4);
   pointer-events: none;
   will-change: transform;
 }
@@ -1350,7 +1364,7 @@ a.cert:hover { border-color: rgba(255, 42, 70, .6); }
   width: 55%;
   background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .1) 42%, rgba(255, 255, 255, .17) 50%, rgba(255, 255, 255, .1) 58%, rgba(255, 255, 255, 0));
   transform: translateX(-60%) skewX(-12deg);
-  animation: silk 11s ease-in-out infinite alternate;
+  animation: silk 11s ease-in-out 2 alternate; /* across and back once, then the satin rests */
   animation-play-state: paused;
   pointer-events: none;
 }

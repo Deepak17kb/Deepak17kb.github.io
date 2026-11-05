@@ -323,10 +323,12 @@
   // the city moves slowly, so about ninety pictures a second is plenty, even on a 165 Hz screen; on touch devices, forty-five
   const CAP = matchMedia('(pointer: coarse)').matches ? 21 : 10.5;
   let shown = 0;
+  // on a touch screen the city holds still while the page is being scrolled, so the scroll gets the whole frame
+  const TOUCH = matchMedia('(pointer: coarse)').matches;
   const loop = (now) => {
     raf = 0;
     if (!on) return;
-    if (now - shown >= CAP) { shown = now; draw(now); }
+    if (now - shown >= CAP && !(TOUCH && now - (window.LINE_SCROLL_AT || -1e9) < 150)) { shown = now; draw(now); }
     raf = requestAnimationFrame(loop);
   };
   const frame = () => { if (!raf) raf = requestAnimationFrame(loop); };

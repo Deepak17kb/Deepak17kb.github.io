@@ -26,6 +26,8 @@
     return;
   }
   gsap.registerPlugin(ScrollTrigger);
+  // a phone's address bar sliding in and out changes only the height: don't re-measure the whole page for it
+  ScrollTrigger.config({ ignoreMobileResize: true });
 
   let lenis = null;
   let loading = false;
@@ -36,10 +38,16 @@
   /* ---------- Lenis smooth scroll ---------- */
   if (!reduced && typeof window.Lenis !== 'undefined') {
     lenis = new Lenis({ duration: 1.1, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
-    lenis.on('scroll', ScrollTrigger.update);
+    // a wheel scroll is driven by Lenis, so ScrollTrigger hears it in the same frame; a finger scroll is native,
+    // and ScrollTrigger already follows that by itself (telling it twice doubles its work every frame)
+    if (ScrollTrigger.isTouch !== 1) lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
   }
+
+  // when the page last scrolled: on touch screens the skyline and the orb hold still mid-scroll, so the scroll gets the frame
+  window.LINE_SCROLL_AT = -1e9;
+  addEventListener('scroll', () => { window.LINE_SCROLL_AT = performance.now(); }, { passive: true });
 
   // The intro plays from the top, so don't restore a mid-page scroll on reload; honour #hash links instead
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -58,6 +66,7 @@
 
   /* ---------- 01 · hero: the name fits the width and stays below the chin ---------- */
   const hero = $('.hero');
+  if (hero) new IntersectionObserver(([e]) => hero.classList.toggle('is-near', e.isIntersecting)).observe(hero);
   const nameEl = $('.hero__name');
   const slots = $$('.slot', nameEl);
   const nameChars = $$('.char', nameEl);
@@ -122,11 +131,12 @@
   const line = (() => {
     const cvs = $('.line');
     const pulse = $('.line__pulse');
+    const ping = pulse && pulse.querySelector('i');
     const nav = $('.nav');
     const nowEl = $('.board__now');
     const nextEl = $('.board__next');
     const bar = $('.progress i');
-    const ctx = cvs ? cvs.getContext('2d', { willReadFrequently: true }) : null;
+    const ctx = cvs ? cvs.getContext('2d') : null;
     const sections = $$('main > section[data-tone], body > footer[data-tone]');
     // red rides the dark chapters, deep red the white ones, white over the blue sky and the blue terminus (red never sits on blue)
     const TONE = {
@@ -152,7 +162,7 @@
 
     const measure = () => {
       const s = window.scrollY;
-      H = innerHeight;
+      H = (cvs && cvs.clientHeight) || innerHeight; // on phones 100vh is taller than innerHeight by the address bar
       navH = nav ? nav.offsetHeight : 60;
       maxS = Math.max(1, ScrollTrigger.maxScroll(window));
       if (cvs) {
@@ -212,6 +222,7 @@
         if (a.getAttribute('href') === '#' + st.id) a.setAttribute('aria-current', 'true');
         else a.removeAttribute('aria-current');
       });
+      if (ping && ping.getAnimations) ping.getAnimations().forEach((a) => { a.currentTime = 0; a.play(); });
       document.dispatchEvent(new CustomEvent('line:station', { detail: { i, last: i === stations.length - 1 } }));
     };
 
@@ -297,7 +308,7 @@
     };
 
     gsap.ticker.add(() => {
-      const s = window.scrollY;
+      const s = lenis ? lenis.scroll : window.scrollY;
       if (s === lastS && !dirty) return;
       lastS = s;
       dirty = false;
@@ -524,11 +535,13 @@
   }
 
   // numbers count up the first time they come into view
+  const NUM = window.Intl ? new Intl.NumberFormat('en-US') : null;
   $$('[data-count]').forEach((el) => {
     if (reduced) return;
     const end = Number(el.dataset.count);
     const o = { v: 0 };
-    const fmt = () => (el.textContent = Math.round(o.v).toLocaleString('en-US'));
+    let was = -1;
+    const fmt = () => { const v = Math.round(o.v); if (v === was) return; was = v; el.textContent = NUM ? NUM.format(v) : String(v); };
     ScrollTrigger.create({ trigger: el, start: 'top 92%', once: true, onEnter: () => gsap.to(o, { v: end, duration: 1.8, ease: 'power3.out', onUpdate: fmt }) });
   });
 
@@ -825,50 +838,95 @@
     new IntersectionObserver(([e]) => band.classList.toggle('is-on', e.isIntersecting), { rootMargin: '10% 0px' }).observe(band);
     if (lenis) {
       const skew = gsap.quickTo('.band__row', 'skewX', { duration: 0.6, ease: 'power3.out' });
-      lenis.on('scroll', (l) => skew(clamp(-l.velocity * 0.3, -8, 8)));
+      let leaned = 0;
+      lenis.on('scroll', (l) => {
+        if (!band.classList.contains('is-on')) return; // off screen: leave it be
+        const v = Math.round(clamp(-l.velocity * 0.3, -8, 8) * 10) / 10;
+        if (v !== leaned) { leaned = v; skew(v); }
+      });
     }
   }
 
   /* ---------- 03 · about: the torch ---------- */
   const about = $('.about');
   const veil = $('.about__veil');
-  if (about && veil && !reduced) {
-    const tx = gsap.quickTo(veil, 'x', { duration: 0.55, ease: 'power3.out' });
-    const ty = gsap.quickTo(veil, 'y', { duration: 0.55, ease: 'power3.out' });
-    let aw = about.clientWidth, ah = about.clientHeight;
-    gsap.set(veil, { x: aw * 0.7, y: ah * 0.4, scale: 4 });
-    let lastMove = -1e9, inView = false;
-    const t0 = performance.now();
-    addEventListener('resize', () => { aw = about.clientWidth; ah = about.clientHeight; });
-    about.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'touch') return;
-      const b = about.getBoundingClientRect();
-      lastMove = performance.now();
-      tx(e.clientX - b.left);
-      ty(e.clientY - b.top);
-    });
-    // on a touch screen the torch follows your finger, even while you scroll
-    const follow = (e) => {
-      const t = e.touches && e.touches[0];
-      if (!t) return;
-      const b = about.getBoundingClientRect();
-      lastMove = performance.now();
-      tx(t.clientX - b.left);
-      ty(t.clientY - b.top);
+  const torch = $('.about__torch');
+  if (about && veil && torch && !reduced) {
+    // The veil is a small canvas, stretched: the browser keeps one little texture and slides it,
+    // instead of re-painting a 3,200px gradient layer whenever it moves.
+    if (veil.getContext) {
+      const S = 512, g = veil.getContext('2d');
+      veil.width = veil.height = S;
+      const gr = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+      [[0, 0], [34 / 400, 0], [62 / 400, 0.5], [104 / 400, 0.84], [1, 0.88]].forEach(([o, a]) => gr.addColorStop(o, `rgba(3,4,10,${a})`));
+      g.fillStyle = gr;
+      g.fillRect(0, 0, S, S);
+    }
+    // Left alone, the torch wanders: a looping animation on the wrapper, which the browser runs off the main
+    // thread, so a page at rest does no work at all. A pointer or a finger takes over the canvas inside;
+    // when they stop, the torch glides back onto its path and the wander carries on.
+    const PATH = [[0.80, 0.30], [0.25, 0.55], [0.62, 0.78], [0.18, 0.22], [0.72, 0.62], [0.42, 0.40]];
+    let wander = null, inView = false, aw = 0, ah = 0;
+    const route = () => {
+      aw = about.clientWidth;
+      ah = about.clientHeight;
+      const t = wander ? wander.currentTime : 0;
+      if (wander) wander.cancel();
+      wander = torch.animate(PATH.map(([u, v]) => ({ transform: `translate3d(${Math.round(u * aw)}px, ${Math.round(v * ah)}px, 0)`, easing: 'ease-in-out' })), { duration: 36000, iterations: Infinity, direction: 'alternate' });
+      wander.currentTime = t || 0;
+      if (!inView || following) wander.pause();
     };
+    const at = (el) => { const m = new DOMMatrixReadOnly(getComputedStyle(el).transform); return [m.m41, m.m42]; };
+    let following = false, back = null, base = [0, 0], ox = 0, oy = 0, gx = 0, gy = 0, lastMove = 0;
+    const put = () => { veil.style.transform = `translate3d(${ox.toFixed(1)}px, ${oy.toFixed(1)}px, 0) scale(4)`; };
+    const aim = (x, y) => {
+      const r = about.getBoundingClientRect();
+      if (!following) {
+        following = true;
+        if (wander) wander.pause();
+        base = at(torch); // where the wander stopped
+        [ox, oy] = at(veil); // and where the canvas sits now (it may be gliding home)
+        if (back) { back.cancel(); back = null; }
+        put();
+      }
+      gx = x - r.left - base[0];
+      gy = y - r.top - base[1];
+      lastMove = performance.now();
+    };
+    about.addEventListener('pointermove', (e) => { if (e.pointerType !== 'touch') aim(e.clientX, e.clientY); });
+    // on a touch screen the torch follows your finger, even while you scroll
+    const follow = (e) => { const t = e.touches && e.touches[0]; if (t) aim(t.clientX, t.clientY); };
     about.addEventListener('touchstart', follow, { passive: true });
     about.addEventListener('touchmove', follow, { passive: true });
     const hint = $('.about__hint');
     if (hint && matchMedia('(hover: none)').matches) hint.textContent = 'Drag your finger.';
-    new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView) { aw = about.clientWidth; ah = about.clientHeight; } }).observe(about);
-    // left alone, the torch wanders on its own
-    gsap.ticker.add(() => {
-      const now = performance.now();
-      if (!inView || now - lastMove < 2600) return;
-      const t = (now - t0) / 1000;
-      tx(aw * (0.5 + 0.36 * Math.sin(t * 0.37)));
-      ty(ah * (0.46 + 0.32 * Math.sin(t * 0.53 + 1.2)));
+    // while someone steers: ease toward them (the same glide at 60 or 120 frames a second); after a pause, glide home
+    gsap.ticker.add((time, dtMs) => {
+      if (!following) return;
+      if (performance.now() - lastMove > 2600) {
+        following = false;
+        const from = veil.style.transform;
+        ox = oy = 0;
+        put();
+        back = veil.animate([{ transform: from }, { transform: veil.style.transform }], { duration: 1400, easing: 'cubic-bezier(.4, 0, .2, 1)' });
+        back.onfinish = () => { back = null; if (inView && wander && !following) wander.play(); };
+        return;
+      }
+      const k = 1 - Math.exp(-Math.min(dtMs, 50) / 130);
+      const nx = ox + (gx - ox) * k, ny = oy + (gy - oy) * k;
+      if (Math.abs(nx - ox) < 0.05 && Math.abs(ny - oy) < 0.05) return;
+      ox = nx;
+      oy = ny;
+      put();
     });
+    new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      if (!wander) return;
+      if (inView && !following && !back) wander.play(); else if (!inView) wander.pause();
+    }).observe(about);
+    route();
+    let rt;
+    addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (about.clientWidth !== aw || Math.abs(about.clientHeight - ah) > 80) route(); }, 250); });
   }
 
   /* ---------- 04 · wins ---------- */

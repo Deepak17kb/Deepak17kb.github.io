@@ -644,9 +644,11 @@
     });
     host.addEventListener('pointerleave', () => { mouse.tp = 0; });
     let raf = 0, on = false, t0 = performance.now();
+    const TOUCH = matchMedia('(pointer: coarse)').matches; // on touch screens it holds still mid-scroll
     const frame = (now) => {
       raf = 0;
       if (!on) return;
+      if (TOUCH && now - (window.LINE_SCROLL_AT || -1e9) < 150) { raf = requestAnimationFrame(frame); return; }
       mouse.x += (mouse.tx - mouse.x) * 0.12;
       mouse.y += (mouse.ty - mouse.y) * 0.12;
       mouse.push += (mouse.tp - mouse.push) * 0.06;
