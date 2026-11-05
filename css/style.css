@@ -148,12 +148,17 @@
   --pad-l: var(--gutter);
   --pad-r: var(--gutter);
   --nav-h: 60px;
+  --lane: 64px; /* the strip on the left where the route line runs */
   --ease: cubic-bezier(.2, .8, .2, 1);
   color-scheme: dark;
 }
 @media (min-width: 900px) and (min-height: 541px), (min-width: 900px) and (orientation: portrait) {
   /* the route line runs down a lane on the left; content starts after it */
   :root { --pad-l: max(var(--gutter), 92px); }
+}
+@media (max-width: 899px), (orientation: landscape) and (max-height: 540px) {
+  /* phones: the same line, in a slimmer lane */
+  :root { --lane: 30px; --pad-l: calc(var(--gutter) + 18px); }
 }
 
 /* ---------- greeting (kept exactly as the live site has it) ---------- */
@@ -503,6 +508,11 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   80%, 100% { transform: scale(1.5); opacity: 0; }
 }
 @media (min-width: 900px) and (min-height: 541px), (min-width: 900px) and (orientation: portrait) { .line, .line__pulse { display: block; } }
+@media (max-width: 899px), (orientation: landscape) and (max-height: 540px) {
+  .line, .line__pulse { display: block; }
+  .line { width: var(--lane); }
+  .line__pulse { width: 18px; height: 18px; margin: -9px 0 0 -9px; }
+}
 
 /* route map: the whole line as a menu */
 .route {
@@ -887,10 +897,12 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
 .more__label { margin: 14px 0 0; font: 500 10px/1 var(--f-mono); letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .85); }
 .more--fresh { margin-top: 8px; }
 @media (max-width: 899px), (orientation: landscape) and (max-height: 540px), (prefers-reduced-motion: reduce) {
-  .rail { perspective: none; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .rail { perspective: none; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
   .rail::-webkit-scrollbar { display: none; }
   .rail__track { transform-style: flat; will-change: auto; }
-  .poster { --ph: min(126vw, 70svh, 520px); scroll-snap-align: center; will-change: auto; }
+  /* the posters fit beside the line's lane, centre in the space right of it, and pass behind the lane like on computers */
+  .rail { scroll-padding-left: var(--lane); clip-path: inset(-40% 0 -40% var(--lane)); }
+  .poster { --ph: min(112vw, 70svh, 520px); scroll-snap-align: center; will-change: auto; perspective: 900px; }
   .poster--more { width: max(calc(var(--ph) * .72), min(calc(var(--ph) * 1.02), 88vw)); }
   .more a { padding: 7px 0; }
   .work { min-height: 0; padding: calc(var(--nav-h) + 40px) 0 48px; }
@@ -1109,14 +1121,22 @@ a.cert:hover { border-color: rgba(255, 42, 70, .6); }
 .cert__back b { font: 900 clamp(26px, 2vw, 36px)/1 var(--f-display); text-transform: uppercase; color: rgba(255, 255, 255, .86); }
 .cert__back span { max-width: 28ch; font: 500 10.5px/1.45 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
 .cert__back i { font: 500 11px/1 var(--f-mono); font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: var(--red); }
-/* hover glows gold, front or back; only the side facing you takes the pointer */
+/* hover glows gold, front or back, on the cards that open a certificate; only the side facing you takes the pointer */
 .ring.is-3d .cert, .ring.is-3d .cert__back { transition: box-shadow .35s, border-color .35s; }
-.ring.is-3d .cert:hover, .ring.is-3d .cert__back:hover {
+.ring.is-3d a.cert:hover, .ring.is-3d a.cert__back:hover {
   border-color: rgba(217, 174, 60, .9);
   box-shadow: 0 0 0 1px rgba(217, 174, 60, .55), 0 0 46px rgba(217, 174, 60, .42), 0 30px 60px -30px rgba(0, 0, 0, .9);
 }
-.ring.is-3d .cert:hover .cert__name, .ring.is-3d .cert__back:hover b { color: var(--gold-hi); }
+.ring.is-3d a.cert:hover .cert__name, .ring.is-3d a.cert__back:hover b { color: var(--gold-hi); }
 .ring.is-3d li.is-away > .cert, .ring.is-3d li:not(.is-away) > .cert__back, .ring.is-3d li.is-out > * { pointer-events: none; }
+/* the ring on phones and small tablets: smaller, taller cards; it runs from the line's lane to the right edge, so cards pass off the sides */
+@media (max-width: 999px), (orientation: landscape) and (max-height: 540px) {
+  .ring.is-3d { height: clamp(280px, 36svh, 360px); margin-left: calc(var(--lane) - var(--pad-l)); margin-right: calc(var(--pad-r) * -1); perspective: 1000px; overflow: hidden; overflow: clip; }
+  .ring.is-3d .ring__list > li { --cw: min(62vw, 270px); top: calc(var(--cw) * -.38); height: calc(var(--cw) * .76); }
+  .ring.is-3d .cert { padding: 16px; gap: 8px; }
+  .ring.is-3d .cert__name { font-size: clamp(17px, 4.6vw, 21px); }
+  .ring.is-3d .cert__back b { font-size: 24px; }
+}
 @media (max-width: 899px), (orientation: landscape) and (max-height: 540px) {
   .wins__grid { grid-template-columns: 1fr; }
   .odo { font-size: clamp(170px, 56vw, 300px); }

@@ -135,7 +135,7 @@
       blue: { done: '#FFFFFF', ahead: 'rgba(255,255,255,.4)', bg: '#1735C2', ring: 'rgba(255,255,255,.66)', glow: '255,255,255' },
       sky: { done: '#FFFFFF', ahead: 'rgba(255,255,255,.3)', bg: '#03040A', ring: 'rgba(255,255,255,.55)', glow: '255,255,255' },
     };
-    let W = 0, H = innerHeight, X = 32, dpr = 1, maxS = 1, navH = 60, heroEnd = 0;
+    let W = 0, H = innerHeight, X = 32, k = 1, dpr = 1, maxS = 1, navH = 60, heroEnd = 0; // k: phones draw the line in a slimmer lane
     let bands = [], stations = [];
     let shown = reduced ? 1 : 0, lastS = -1, dirty = true, cur = -1, tone = '';
     const sprites = {};
@@ -159,6 +159,7 @@
         dpr = Math.min(2, window.devicePixelRatio || 1);
         W = cvs.clientWidth;
         X = W / 2;
+        k = W < 48 ? 0.68 : 1;
         if (W) { cvs.width = Math.round(W * dpr); cvs.height = Math.round(H * dpr); }
       }
       bands = sections.map((el) => {
@@ -217,7 +218,7 @@
     const sprite = (T) => {
       if (sprites[T.glow]) return sprites[T.glow];
       const c = document.createElement('canvas');
-      c.width = c.height = Math.round(48 * dpr);
+      c.width = c.height = Math.round(48 * k * dpr);
       const g = c.getContext('2d');
       const r = c.width / 2;
       const gr = g.createRadialGradient(r, r, 0, r, r, r);
@@ -240,8 +241,8 @@
         if (hi <= lo) continue;
         const T = TONE[b.tone] || TONE.dark;
         const mid = clamp(ry, lo, hi);
-        if (mid > lo) { ctx.fillStyle = T.done; ctx.fillRect(X - 1.5, lo, 3, mid - lo); }
-        if (hi > mid) { ctx.fillStyle = T.ahead; ctx.fillRect(X - 1, mid, 2, hi - mid); }
+        if (mid > lo) { ctx.fillStyle = T.done; ctx.fillRect(X - 1.5 * k, lo, 3 * k, mid - lo); }
+        if (hi > mid) { ctx.fillStyle = T.ahead; ctx.fillRect(X - Math.max(0.75, k), mid, Math.max(1.5, 2 * k), hi - mid); }
       }
       let py = null, pc = '';
       stations.forEach((st, k) => {
@@ -250,14 +251,14 @@
         const T = toneAt(y, s);
         const passed = k <= current;
         ctx.beginPath();
-        ctx.arc(X, y, 7.5, 0, Math.PI * 2);
+        ctx.arc(X, y, 7.5 * k, 0, Math.PI * 2);
         ctx.fillStyle = passed ? T.done : T.bg;
         ctx.fill();
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 2.5 * k;
         ctx.strokeStyle = passed ? T.done : T.ring;
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(X, y, 2.8, 0, Math.PI * 2);
+        ctx.arc(X, y, 2.8 * k, 0, Math.PI * 2);
         ctx.fillStyle = T.bg;
         ctx.fill();
         if (k === current) { py = y; pc = T.done; }
@@ -271,14 +272,14 @@
       }
       if (ry <= cap + 1) {
         const T = toneAt(ry, s);
-        ctx.drawImage(sprite(T), X - 22, ry - 34, 44, 68);
+        ctx.drawImage(sprite(T), X - 22 * k, ry - 34 * k, 44 * k, 68 * k);
         ctx.fillStyle = T.done;
         ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(X - 5, ry - 13, 10, 26, 5); else ctx.rect(X - 5, ry - 13, 10, 26);
+        if (ctx.roundRect) ctx.roundRect(X - 5 * k, ry - 13 * k, 10 * k, 26 * k, 5 * k); else ctx.rect(X - 5 * k, ry - 13 * k, 10 * k, 26 * k);
         ctx.fill();
         ctx.fillStyle = T.bg;
-        ctx.fillRect(X - 2, ry - 7, 4, 3);
-        ctx.fillRect(X - 2, ry + 3, 4, 3);
+        ctx.fillRect(X - 2 * k, ry - 7 * k, 4 * k, 3 * k);
+        ctx.fillRect(X - 2 * k, ry + 3 * k, 4 * k, 3 * k);
       }
     };
 
@@ -629,6 +630,73 @@
       cards.forEach((c) => (c.style.transform = ''));
     };
   });
+  /* ---------- 02 · on phones the rail is swiped: the posters still bend, lean into the swipe and bounce ---------- */
+  // Native swiping and snapping stay as they are (they feel right under a finger). The motion goes on the card
+  // inside each poster, through the separate `rotate` and `scale` properties: the poster itself (what the rail
+  // snaps to) never changes shape, so the snap point holds still, and the arrival tween's transform is left alone.
+  mm.add({ phone: '(max-width: 899px), (orientation: landscape) and (max-height: 540px)', motion: '(prefers-reduced-motion: no-preference)' }, (ctx) => {
+    if (!ctx.conditions.phone || !ctx.conditions.motion) return;
+    const rail = $('.rail');
+    const posters = rail ? $$('.poster', rail) : [];
+    const cards = posters.map((li) => $('.poster__card', li)).filter(Boolean);
+    if (!cards.length || cards.length !== posters.length) return;
+    let centers = [], half = 1, mid = 0, sx = rail.scrollLeft, lastT = 0, vel = 0, inView = false, idle = 0, dir = 0, moved = 0;
+    // two under-damped springs: the lean follows the swipe speed, the bump makes the middle poster land with a bounce
+    const L = { x: 0, v: 0 }, B = { x: 0, v: 0 };
+    const step = (q, to, K, z, dt) => { q.v += (K * (to - q.x) - 2 * z * Math.sqrt(K) * q.v) * dt; q.x += q.v * dt; };
+    const paint = () => {
+      cards.forEach((c, i) => {
+        const d = clamp((centers[i] - sx - mid) / half, -1.5, 1.5), a = Math.min(1, Math.abs(d));
+        c.style.rotate = `y ${(-d * 20 + L.x).toFixed(2)}deg`;
+        c.style.scale = ((1 - a * 0.07) * (1 + clamp(B.x, -0.06, 0.04) * (1 - a))).toFixed(4);
+      });
+    };
+    const measure = () => {
+      const r = rail.getBoundingClientRect();
+      // the middle a poster snaps to: the space right of the line's lane
+      const pl = parseFloat(getComputedStyle(rail).scrollPaddingLeft) || 0;
+      mid = (r.width + pl) / 2;
+      half = (r.width - pl) / 2;
+      centers = posters.map((li) => { const b = li.getBoundingClientRect(); return b.left - r.left + rail.scrollLeft + b.width / 2; });
+      sx = rail.scrollLeft;
+      paint();
+    };
+    const tick = (time, dtMs) => {
+      if (!inView) return;
+      if (performance.now() - lastT > 70) vel *= 0.8; // no scroll event for a while: the swipe has slowed
+      const lean = clamp(vel * 9, -14, 14);
+      if (Math.abs(lean - L.x) < 0.02 && Math.abs(L.v) < 0.02 && Math.abs(B.x) < 0.0005 && Math.abs(B.v) < 0.0005) return;
+      const dt = Math.min(dtMs, 34) / 2000;
+      for (let n = 0; n < 2; n++) { step(L, lean, 140, 0.28, dt); step(B, 0, 160, 0.26, dt); }
+      paint();
+    };
+    const onScroll = () => {
+      const s = rail.scrollLeft, now = performance.now();
+      if (s !== sx) dir = Math.sign(s - sx);
+      moved += Math.abs(s - sx);
+      vel = vel * 0.6 + ((s - sx) / Math.max(8, now - lastT)) * 0.4;
+      sx = s;
+      lastT = now;
+      clearTimeout(idle);
+      // the swipe has landed: a last flick of lean the way it went, and the middle poster bounces (real swipes only)
+      idle = setTimeout(() => { if (dir && moved > 24) { L.v += dir * 46; B.v -= 0.85; } dir = 0; moved = 0; vel = 0; }, 130);
+    };
+    rail.addEventListener('scroll', onScroll, { passive: true });
+    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; }, { rootMargin: '15% 0px' });
+    io.observe(rail);
+    gsap.ticker.add(tick);
+    ScrollTrigger.addEventListener('refresh', measure);
+    measure();
+    return () => {
+      clearTimeout(idle);
+      gsap.ticker.remove(tick);
+      rail.removeEventListener('scroll', onScroll);
+      io.disconnect();
+      ScrollTrigger.removeEventListener('refresh', measure);
+      cards.forEach((c) => { c.style.rotate = ''; c.style.scale = ''; });
+    };
+  });
+
   // the posters arrive with a bounce as the wall comes up
   if (!reduced) {
     const pc = $$('.poster__card');
@@ -779,6 +847,19 @@
       tx(e.clientX - b.left);
       ty(e.clientY - b.top);
     });
+    // on a touch screen the torch follows your finger, even while you scroll
+    const follow = (e) => {
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      const b = about.getBoundingClientRect();
+      lastMove = performance.now();
+      tx(t.clientX - b.left);
+      ty(t.clientY - b.top);
+    };
+    about.addEventListener('touchstart', follow, { passive: true });
+    about.addEventListener('touchmove', follow, { passive: true });
+    const hint = $('.about__hint');
+    if (hint && matchMedia('(hover: none)').matches) hint.textContent = 'Drag your finger.';
     new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView) { aw = about.clientWidth; ah = about.clientHeight; } }).observe(about);
     // left alone, the torch wanders on its own
     gsap.ticker.add(() => {
@@ -798,10 +879,11 @@
   }
   if (!reduced) gsap.from('.medal', { y: 40, opacity: 0, duration: 1, stagger: 0.1, ease: 'expo.out', scrollTrigger: { trigger: '.medals', start: 'top 84%' } });
 
-  // The certificates turn in a tilted ring as you scroll past (desktop). Oracle, AWS and Infosys ride alone
-  // at first; at 70% the ring springs open and the other two join. Every card glows and opens, front or back.
-  mm.add({ ring: '(min-width: 1000px) and (min-height: 541px), (min-width: 1000px) and (orientation: portrait)', motion: '(prefers-reduced-motion: no-preference)' }, (ctx) => {
-    if (!ctx.conditions.ring || !ctx.conditions.motion) return;
+  // The certificates turn in a tilted ring as you scroll past, on every screen (phones get smaller cards).
+  // Oracle, AWS and Infosys ride alone at first; at 70% the ring springs open and the other two join.
+  // Every card that has a certificate glows and opens, front or back.
+  mm.add({ motion: '(prefers-reduced-motion: no-preference)' }, (ctx) => {
+    if (!ctx.conditions.motion) return;
     const ring = $('.ring');
     const list = $('.ring__list');
     const items = $$('.ring__list > li');
@@ -1246,6 +1328,61 @@
       gsap.set(nameChars, { clearProps: 'transform' });
     };
   });
+
+  /* ---------- touch screens: a wave runs through the name now and then, and a tap sends one from where you touched ---------- */
+  mm.add({ touch: '(hover: none)', motion: '(prefers-reduced-motion: no-preference)' }, (ctx) => {
+    if (!ctx.conditions.touch || !ctx.conditions.motion) return;
+    let timer = 0, alive = true;
+    const wave = (from) => {
+      // the same rule as the cursor: never more lift than the room under the chin allows
+      const lift = clamp(liftRoom - 10, 0, 20);
+      if (!alive || !lineReady || !lift || window.scrollY > innerHeight * 0.4) return;
+      nameChars.forEach((c, i) => {
+        gsap.timeline({ delay: Math.abs(i - from) * 0.075 })
+          .to(c, { y: -lift, rotation: clamp((i - from) * 2, -5, 5), duration: 0.22, ease: 'power2.out', overwrite: 'auto' })
+          .to(c, { y: 0, rotation: 0, duration: 1.1, ease: 'elastic.out(1, 0.4)' });
+      });
+    };
+    const loop = () => { wave(0); timer = setTimeout(loop, 6500); };
+    const start = () => { if (alive) timer = setTimeout(loop, 1800); };
+    if (lineReady) start(); else document.addEventListener('line:ready', start, { once: true });
+    const tap = (e) => {
+      if (e.target.closest('a, button')) return;
+      let best = 0, bd = Infinity;
+      slots.forEach((s, i) => { const r = s.getBoundingClientRect(), d = Math.abs(e.clientX - (r.left + r.width / 2)); if (d < bd) { bd = d; best = i; } });
+      wave(best);
+    };
+    hero.addEventListener('pointerdown', tap);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+      hero.removeEventListener('pointerdown', tap);
+      gsap.killTweensOf(nameChars);
+      gsap.set(nameChars, { clearProps: 'transform' });
+    };
+  });
+
+  /* ---------- touch screens: whatever you press squashes a little and springs back ---------- */
+  // It animates the separate `scale` property, so it adds to any transform the element already has.
+  if (!reduced && matchMedia('(hover: none)').matches && Element.prototype.animate) {
+    let held = null, squash = null;
+    const release = () => {
+      if (!held) return;
+      const el = held;
+      held = null;
+      if (squash) squash.cancel();
+      el.animate([{ scale: 0.94 }, { scale: 1.04, offset: 0.35 }, { scale: 0.985, offset: 0.68 }, { scale: 1 }], { duration: 560, easing: 'ease-out' });
+    };
+    document.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      const el = e.target.closest('a, button');
+      if (!el || el.closest('.preloader')) return;
+      release();
+      held = el;
+      squash = el.animate([{ scale: 1 }, { scale: 0.94 }], { duration: 110, easing: 'ease-out', fill: 'forwards' });
+    }, { passive: true });
+    ['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, release, { passive: true }));
+  }
 
   /* ---------- measure once everything is in place ---------- */
   ScrollTrigger.addEventListener('refreshInit', fitName);
