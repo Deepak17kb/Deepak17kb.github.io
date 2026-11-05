@@ -1,12 +1,12 @@
 {
-  "name": "Deepak Kumar Behera — Portfolio",
+  "name": "Deepak Kumar Behera · The Deepak Line",
   "short_name": "Depk.",
-  "description": "Full-stack apps, AI agents and data stories by Deepak Kumar Behera.",
+  "description": "Data science, machine learning and AI agents by Deepak Kumar Behera, laid out as a seven-station metro line.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#050507",
+  "theme_color": "#050507",
   "icons": [
     { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
